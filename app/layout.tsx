@@ -25,7 +25,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Relevo — Heritage Survey",
-  description: "Diagnostic terrain pour le bâti ancien, hors-ligne et open source.",
+  description: "Diagnostic terrain du bâtiment, hors-ligne et open source.",
   manifest: "/manifest.json",
   icons: {
     icon: "/icons/icon-192.png",

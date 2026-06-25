@@ -25,6 +25,7 @@ import { t } from "@/lib/i18n";
 import PathologyBoard, { AddPathologySpec } from "@/components/PathologyBoard";
 import SynthesisPanel from "@/components/SynthesisPanel";
 import DocumentsSection from "@/components/DocumentsSection";
+import PlansSection from "@/components/PlansSection";
 
 export default function SurveyDetailPage() {
   const { lang } = useLang();
@@ -207,6 +208,8 @@ export default function SurveyDetailPage() {
           onRenameLot={handleRenameLot}
           onDeleteLot={handleDeleteLot}
         />
+
+        <PlansSection surveyId={survey.id} />
 
         <DocumentsSection surveyId={survey.id} />
 

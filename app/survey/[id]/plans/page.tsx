@@ -14,6 +14,7 @@ import {
   getPlansForSurvey,
 } from "@/lib/db";
 import { newId } from "@/lib/id";
+import { rasterizePlanFile } from "@/lib/rasterize";
 import { Pathology, PlanMarker, PlanRecord } from "@/lib/types";
 import { useLang } from "@/lib/lang-context";
 import { t } from "@/lib/i18n";
@@ -31,6 +32,7 @@ export default function PlansPage() {
   const [activeMarkerId, setActiveMarkerId] = useState<string | null>(null);
   const [selectedPathologyId, setSelectedPathologyId] = useState<string>("");
   const [planName, setPlanName] = useState("");
+  const [uploading, setUploading] = useState(false);
   const canvasContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -71,17 +73,23 @@ export default function PlansPage() {
     const file = e.target.files?.[0];
     e.target.value = "";
     if (!file) return;
-    const plan: PlanRecord = {
-      id: newId(),
-      surveyId,
-      name: planName || file.name,
-      blob: file,
-      createdAt: new Date().toISOString(),
-    };
-    await addPlan(plan);
-    setPlans((prev) => [...prev, plan]);
-    setActivePlanId(plan.id);
-    setPlanName("");
+    setUploading(true);
+    try {
+      const blob = await rasterizePlanFile(file);
+      const plan: PlanRecord = {
+        id: newId(),
+        surveyId,
+        name: planName || file.name.replace(/\.[a-zA-Z0-9]+$/, ""),
+        blob,
+        createdAt: new Date().toISOString(),
+      };
+      await addPlan(plan);
+      setPlans((prev) => [...prev, plan]);
+      setActivePlanId(plan.id);
+      setPlanName("");
+    } finally {
+      setUploading(false);
+    }
   }
 
   async function handleRenamePlan(rawName: string) {
@@ -159,10 +167,14 @@ export default function PlansPage() {
           placeholder={t("planName", lang)}
           className="w-32 rounded-full border border-stone-200 px-3 py-1.5 text-xs focus:border-accent focus:outline-none dark:border-stone-700 dark:bg-stone-900 dark:text-stone-50"
         />
-        <label className="flex cursor-pointer items-center gap-1.5 rounded-full border border-dashed border-stone-300 px-3 py-1.5 text-xs font-medium text-stone-500 hover:border-accent hover:text-accent dark:border-stone-700 dark:text-stone-400">
+        <label
+          className={`flex cursor-pointer items-center gap-1.5 rounded-full border border-dashed border-stone-300 px-3 py-1.5 text-xs font-medium text-stone-500 hover:border-accent hover:text-accent dark:border-stone-700 dark:text-stone-400 ${
+            uploading ? "pointer-events-none opacity-60" : ""
+          }`}
+        >
           <Upload className="h-3.5 w-3.5" strokeWidth={1.5} />
-          {t("uploadPlan", lang)}
-          <input type="file" accept="image/*" className="hidden" onChange={handleUpload} />
+          {uploading ? t("processingPlan", lang) : t("uploadPlan", lang)}
+          <input type="file" accept="image/*,application/pdf" className="hidden" onChange={handleUpload} disabled={uploading} />
         </label>
       </div>
 

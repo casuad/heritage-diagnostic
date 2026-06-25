@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { FileText, Trash2, Upload } from "lucide-react";
+import { FileText, Sparkles, Trash2, Upload } from "lucide-react";
 import { addDocument, deleteDocument, getDocumentsForSurvey } from "@/lib/db";
 import { newId } from "@/lib/id";
 import { DocumentRecord } from "@/lib/types";
@@ -38,7 +38,13 @@ export default function DocumentsSection({ surveyId }: { surveyId: string }) {
 
   return (
     <section className="rounded-xl border border-dashed border-stone-300 bg-stone-50/60 p-4 dark:border-stone-700 dark:bg-stone-900/30">
-      <h2 className="text-sm font-semibold text-stone-900 dark:text-stone-50">{t("documents", lang)}</h2>
+      <div className="flex flex-wrap items-center gap-2">
+        <h2 className="text-sm font-semibold text-stone-900 dark:text-stone-50">{t("documents", lang)}</h2>
+        <span className="flex items-center gap-1 rounded-full bg-stone-200/70 px-2 py-0.5 text-[10px] font-medium text-stone-600 dark:bg-stone-800 dark:text-stone-400">
+          <Sparkles className="h-3 w-3" strokeWidth={1.5} />
+          {t("aiAnalysisComingSoon", lang)}
+        </span>
+      </div>
       <p className="mt-1 text-xs text-stone-500 dark:text-stone-400">{t("documentsHint", lang)}</p>
 
       {documents.length === 0 ? (

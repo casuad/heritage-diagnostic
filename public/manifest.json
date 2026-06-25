@@ -1,7 +1,7 @@
 {
   "name": "Relevo — Heritage Survey",
   "short_name": "Relevo",
-  "description": "Diagnostic terrain pour le bâti ancien, hors-ligne et open source.",
+  "description": "Diagnostic terrain du bâtiment, hors-ligne et open source.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0c0c0b",

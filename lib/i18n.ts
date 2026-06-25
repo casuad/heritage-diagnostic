@@ -3,8 +3,8 @@ import { Lang } from "./types";
 export const STRINGS = {
   appName: { fr: "Relevo", en: "Relevo" },
   tagline: {
-    fr: "Relevez les pathologies d'un bâtiment ancien sur le terrain, photographiez-les, repérez-les sur plan, puis générez un rapport PDF.",
-    en: "Survey pathologies in a historic building on site, photograph them, locate them on a plan, then generate a PDF report.",
+    fr: "Relevez les pathologies d'un bâtiment sur le terrain, photographiez-les, repérez-les sur plan, puis générez un rapport PDF.",
+    en: "Survey pathologies in a building on site, photograph them, locate them on a plan, then generate a PDF report.",
   },
   backupData: { fr: "Sauvegarder ou restaurer mes relevés", en: "Back up or restore my surveys" },
   newSurvey: { fr: "Nouveau relevé", en: "New survey" },
@@ -40,7 +40,14 @@ export const STRINGS = {
   addPathology: { fr: "Ajouter une pathologie", en: "Add a pathology" },
   pathologiesRecorded: { fr: "pathologies relevées", en: "pathologies recorded" },
   plans: { fr: "Plans", en: "Plans" },
+  plansHint: {
+    fr: "Importez le plan du bâtiment (PDF ou image) pour y repérer précisément chaque pathologie.",
+    en: "Import the building's plan (PDF or image) to precisely locate each pathology on it.",
+  },
+  addFirstPlan: { fr: "Ajouter un premier plan", en: "Add a first plan" },
+  managePlans: { fr: "Repérer sur le plan", en: "Locate on the plan" },
   uploadPlan: { fr: "Ajouter un plan", en: "Upload a plan" },
+  processingPlan: { fr: "Traitement…", en: "Processing…" },
   noPlans: { fr: "Aucun plan pour l'instant.", en: "No plans yet." },
   planName: { fr: "Nom du plan", en: "Plan name" },
   placeMarkerHint: {
@@ -69,6 +76,10 @@ export const STRINGS = {
   },
   uploadDocument: { fr: "Ajouter un document", en: "Upload a document" },
   noDocuments: { fr: "Aucun document pour l'instant.", en: "No documents yet." },
+  aiAnalysisComingSoon: {
+    fr: "Analyse IA des documents — en cours de développement",
+    en: "AI document analysis — in development",
+  },
   groupByLot: { fr: "Par lot", en: "By trade" },
   groupByZone: { fr: "Par zone", en: "By zone" },
   zone: { fr: "Zone", en: "Zone" },
