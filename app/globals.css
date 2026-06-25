@@ -24,3 +24,10 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Tailwind v4 preflight no longer sets cursor: pointer on buttons (matches
+   the native browser default). Restored globally so every clickable button
+   in the app visibly looks clickable. */
+button:not(:disabled) {
+  cursor: pointer;
+}
