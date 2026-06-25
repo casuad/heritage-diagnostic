@@ -50,25 +50,7 @@ export default function HomePage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-sm text-stone-500 dark:text-stone-400">{t("tagline", lang)}</p>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={exportJson}
-            title={t("exportJson", lang)}
-            className="rounded-full border border-stone-200 p-2 text-stone-500 hover:bg-stone-100 dark:border-stone-700 dark:text-stone-400 dark:hover:bg-stone-800"
-          >
-            <Download className="h-4 w-4" strokeWidth={1.5} />
-          </button>
-          <label
-            title={t("importJson", lang)}
-            className="cursor-pointer rounded-full border border-stone-200 p-2 text-stone-500 hover:bg-stone-100 dark:border-stone-700 dark:text-stone-400 dark:hover:bg-stone-800"
-          >
-            <Upload className="h-4 w-4" strokeWidth={1.5} />
-            <input type="file" accept="application/json" className="hidden" onChange={importJson} />
-          </label>
-        </div>
-      </div>
+      <p className="text-sm text-stone-500 dark:text-stone-400">{t("tagline", lang)}</p>
 
       <Link
         href="/survey/new"
@@ -85,6 +67,19 @@ export default function HomePage() {
         {surveys.map((survey) => (
           <SurveyCard key={survey.id} survey={survey} onDelete={handleDeleteSurvey} />
         ))}
+      </div>
+
+      <div className="mt-10 flex items-center justify-center gap-4 border-t border-stone-100 pt-4 text-xs text-stone-400 dark:border-stone-800 dark:text-stone-500">
+        <span>{t("backupData", lang)}</span>
+        <button onClick={exportJson} className="flex items-center gap-1 hover:text-accent">
+          <Download className="h-3.5 w-3.5" strokeWidth={1.5} />
+          {t("exportJson", lang)}
+        </button>
+        <label className="flex cursor-pointer items-center gap-1 hover:text-accent">
+          <Upload className="h-3.5 w-3.5" strokeWidth={1.5} />
+          {t("importJson", lang)}
+          <input type="file" accept="application/json" className="hidden" onChange={importJson} />
+        </label>
       </div>
     </div>
   );

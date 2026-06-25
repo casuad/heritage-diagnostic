@@ -19,11 +19,10 @@ export function groupPathologies(pathologies: Pathology[], mode: GroupMode, lots
     }));
   }
 
-  const field = mode === "zone" ? "zone" : "disorderType";
   const map = new Map<string, Pathology[]>();
   map.set(EMPTY_GROUP_KEY, []);
   for (const pathology of pathologies) {
-    const value = pathology[field].trim();
+    const value = pathology.zone.trim();
     const key = value || EMPTY_GROUP_KEY;
     if (!map.has(key)) map.set(key, []);
     map.get(key)!.push(pathology);

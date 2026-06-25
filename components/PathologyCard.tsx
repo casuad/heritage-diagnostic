@@ -1,7 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { Map as MapIcon, Trash2 } from "lucide-react";
-import { GroupMode, Lot, Pathology } from "@/lib/types";
+import { GroupMode, Lot, Pathology, PlanMarker } from "@/lib/types";
 import { useLang } from "@/lib/lang-context";
 import { t } from "@/lib/i18n";
 import SeverityPicker from "./SeverityPicker";
@@ -12,7 +13,7 @@ export default function PathologyCard({
   pathology,
   lots,
   groupMode,
-  locatedOnPlan,
+  marker,
   onUpdate,
   onDelete,
 }: {
@@ -20,14 +21,14 @@ export default function PathologyCard({
   pathology: Pathology;
   lots: Lot[];
   groupMode: GroupMode;
-  locatedOnPlan: boolean;
+  marker: PlanMarker | null;
   onUpdate: (id: string, patch: Partial<Pathology>) => void;
   onDelete: (id: string) => void;
 }) {
   const { lang } = useLang();
 
   return (
-    <div className="border-t border-stone-100 pt-3 first:border-t-0 first:pt-0 dark:border-stone-800">
+    <div id={`pathology-${pathology.id}`} className="scroll-mt-24 border-t border-stone-100 pt-3 first:border-t-0 first:pt-0 dark:border-stone-800">
       <div className="flex items-start gap-2">
         <span className="mt-2 shrink-0 rounded-full bg-stone-100 px-2 py-0.5 text-[10px] font-mono font-medium text-stone-500 dark:bg-stone-800 dark:text-stone-400">
           {pathology.code}
@@ -39,10 +40,14 @@ export default function PathologyCard({
           placeholder={t("pathologyLabel", lang)}
           className="flex-1 rounded-lg border border-stone-200 px-2 py-1.5 text-sm focus:border-accent focus:outline-none dark:border-stone-700 dark:bg-stone-900 dark:text-stone-50"
         />
-        {locatedOnPlan && (
-          <span title={t("locatedOnPlan", lang)} className="mt-2 shrink-0 text-stone-400 dark:text-stone-500">
+        {marker && (
+          <Link
+            href={`/survey/${surveyId}/plans?plan=${marker.planId}&marker=${marker.id}`}
+            title={t("locatedOnPlan", lang)}
+            className="mt-2 shrink-0 text-stone-400 hover:text-accent dark:text-stone-500"
+          >
             <MapIcon className="h-3.5 w-3.5" strokeWidth={1.5} />
-          </span>
+          </Link>
         )}
         <button
           type="button"
@@ -73,15 +78,6 @@ export default function PathologyCard({
             value={pathology.zone}
             onChange={(e) => onUpdate(pathology.id, { zone: e.target.value })}
             placeholder={t("zonePlaceholder", lang)}
-            className="w-36 rounded-md border border-stone-200 px-1.5 py-1 text-[11px] text-stone-600 focus:border-accent focus:outline-none dark:border-stone-700 dark:bg-stone-900 dark:text-stone-300"
-          />
-        )}
-        {groupMode !== "disorderType" && (
-          <input
-            type="text"
-            value={pathology.disorderType}
-            onChange={(e) => onUpdate(pathology.id, { disorderType: e.target.value })}
-            placeholder={t("disorderTypePlaceholder", lang)}
             className="w-36 rounded-md border border-stone-200 px-1.5 py-1 text-[11px] text-stone-600 focus:border-accent focus:outline-none dark:border-stone-700 dark:bg-stone-900 dark:text-stone-300"
           />
         )}

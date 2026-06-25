@@ -19,7 +19,7 @@ import {
 import { newId } from "@/lib/id";
 import { defaultLotsFor, makeLotPrefix } from "@/lib/lots";
 import { nextCode } from "@/lib/numbering";
-import { Lot, Pathology, Survey } from "@/lib/types";
+import { Lot, Pathology, PlanMarker, Survey } from "@/lib/types";
 import { useLang } from "@/lib/lang-context";
 import { t } from "@/lib/i18n";
 import PathologyBoard, { AddPathologySpec } from "@/components/PathologyBoard";
@@ -33,12 +33,16 @@ export default function SurveyDetailPage() {
   const [survey, setSurvey] = useState<Survey | null>(null);
   const [pathologies, setPathologies] = useState<Pathology[]>([]);
   const [lots, setLots] = useState<Lot[]>([]);
-  const [locatedPathologyIds, setLocatedPathologyIds] = useState<Set<string>>(new Set());
+  const [markersByPathology, setMarkersByPathology] = useState<Record<string, PlanMarker>>({});
 
   useEffect(() => {
     getSurvey(params.id).then((s) => setSurvey(s ?? null));
     getPathologiesForSurvey(params.id).then(setPathologies);
-    getMarkersForSurvey(params.id).then((markers) => setLocatedPathologyIds(new Set(markers.map((m) => m.pathologyId))));
+    getMarkersForSurvey(params.id).then((markers) => {
+      const byPathology: Record<string, PlanMarker> = {};
+      for (const marker of markers) byPathology[marker.pathologyId] ??= marker;
+      setMarkersByPathology(byPathology);
+    });
     getLotsForSurvey(params.id).then(async (existing) => {
       if (existing.length > 0) {
         setLots(existing);
@@ -53,6 +57,18 @@ export default function SurveyDetailPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.id]);
 
+  useEffect(() => {
+    if (pathologies.length === 0) return;
+    const hash = window.location.hash;
+    if (!hash.startsWith("#pathology-")) return;
+    const el = document.getElementById(hash.slice(1));
+    if (!el) return;
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+    el.classList.add("ring-2", "ring-accent");
+    const timeout = setTimeout(() => el.classList.remove("ring-2", "ring-accent"), 2000);
+    return () => clearTimeout(timeout);
+  }, [pathologies]);
+
   async function handleAdd(spec: AddPathologySpec) {
     if (!survey) return;
     const lot = lots.find((l) => l.id === spec.lotId);
@@ -64,7 +80,6 @@ export default function SurveyDetailPage() {
       code: nextCode(lot, pathologies),
       label: spec.label ?? "",
       zone: spec.zone ?? "",
-      disorderType: spec.disorderType ?? "",
       severity: null,
       comment: "",
       createdAt: new Date().toISOString(),
@@ -184,7 +199,7 @@ export default function SurveyDetailPage() {
           surveyId={survey.id}
           pathologies={pathologies}
           lots={lots}
-          locatedPathologyIds={locatedPathologyIds}
+          markersByPathology={markersByPathology}
           onAdd={handleAdd}
           onUpdate={handleUpdate}
           onDelete={handleDelete}

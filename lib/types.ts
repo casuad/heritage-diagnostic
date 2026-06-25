@@ -18,7 +18,7 @@ export interface Lot {
   templateSlug?: string;
 }
 
-export type GroupMode = "lot" | "zone" | "disorderType";
+export type GroupMode = "lot" | "zone";
 
 export interface Pathology {
   id: string;
@@ -27,7 +27,6 @@ export interface Pathology {
   code: string;
   label: string;
   zone: string;
-  disorderType: string;
   severity: Severity | null;
   comment: string;
   createdAt: string;

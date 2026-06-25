@@ -1,9 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { Trash2 } from "lucide-react";
 import { getPhotosForPathology } from "@/lib/db";
 import { PhotoRecord } from "@/lib/types";
+import { useLang } from "@/lib/lang-context";
+import { t } from "@/lib/i18n";
 
 export interface PlanMarkerView {
   id: string;
@@ -15,20 +18,26 @@ export interface PlanMarkerView {
 }
 
 export default function PlanCanvas({
+  surveyId,
   imageUrl,
   markers,
+  activeMarkerId,
+  onActiveMarkerIdChange,
   onPlace,
   onDeleteMarker,
   placementEnabled,
 }: {
+  surveyId: string;
   imageUrl: string;
   markers: PlanMarkerView[];
+  activeMarkerId: string | null;
+  onActiveMarkerIdChange: (id: string | null) => void;
   onPlace: (x: number, y: number) => void;
   onDeleteMarker: (id: string) => void;
   placementEnabled: boolean;
 }) {
+  const { lang } = useLang();
   const imgRef = useRef<HTMLImageElement>(null);
-  const [activeMarkerId, setActiveMarkerId] = useState<string | null>(null);
   const [photos, setPhotos] = useState<PhotoRecord[]>([]);
 
   const activeMarker = markers.find((m) => m.id === activeMarkerId) ?? null;
@@ -40,7 +49,7 @@ export default function PlanCanvas({
 
   function handleClick(e: React.MouseEvent<HTMLDivElement>) {
     if (activeMarkerId) {
-      setActiveMarkerId(null);
+      onActiveMarkerIdChange(null);
       return;
     }
     if (!placementEnabled || !imgRef.current) return;
@@ -65,7 +74,7 @@ export default function PlanCanvas({
           title={marker.code}
           onClick={(e) => {
             e.stopPropagation();
-            setActiveMarkerId(marker.id === activeMarkerId ? null : marker.id);
+            onActiveMarkerIdChange(marker.id === activeMarkerId ? null : marker.id);
           }}
           className="absolute flex h-6 w-6 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-accent text-[9px] font-bold text-white shadow-md ring-2 ring-white hover:bg-accent-dark dark:ring-stone-900"
           style={{ left: `${marker.x}%`, top: `${marker.y}%` }}
@@ -93,13 +102,19 @@ export default function PlanCanvas({
               type="button"
               onClick={() => {
                 onDeleteMarker(activeMarker.id);
-                setActiveMarkerId(null);
+                onActiveMarkerIdChange(null);
               }}
               className="shrink-0 rounded-full p-1 text-stone-400 hover:bg-red-50 hover:text-red-600 dark:text-stone-500"
             >
               <Trash2 className="h-3 w-3" strokeWidth={1.5} />
             </button>
           </div>
+          <Link
+            href={`/survey/${surveyId}#pathology-${activeMarker.pathologyId}`}
+            className="mt-1.5 inline-block text-[11px] font-medium text-accent hover:underline"
+          >
+            {t("viewPathologyCard", lang)} →
+          </Link>
           {photos.length > 0 && (
             <div className="mt-2 flex flex-wrap gap-1">
               {photos.map((photo) => (

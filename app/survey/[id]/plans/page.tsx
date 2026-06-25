@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Trash2, Upload } from "lucide-react";
@@ -28,13 +28,18 @@ export default function PlansPage() {
   const [pathologies, setPathologies] = useState<Pathology[]>([]);
   const [activePlanId, setActivePlanId] = useState<string | null>(null);
   const [markers, setMarkers] = useState<PlanMarker[]>([]);
+  const [activeMarkerId, setActiveMarkerId] = useState<string | null>(null);
   const [selectedPathologyId, setSelectedPathologyId] = useState<string>("");
   const [planName, setPlanName] = useState("");
+  const canvasContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const planParam = params.get("plan");
     getPlansForSurvey(surveyId).then((p) => {
       setPlans(p);
-      if (p.length > 0) setActivePlanId(p[0].id);
+      if (planParam && p.some((plan) => plan.id === planParam)) setActivePlanId(planParam);
+      else if (p.length > 0) setActivePlanId(p[0].id);
     });
     getPathologiesForSurvey(surveyId).then((p) => {
       setPathologies(p);
@@ -43,7 +48,14 @@ export default function PlansPage() {
   }, [surveyId]);
 
   useEffect(() => {
-    (activePlanId ? getMarkersForPlan(activePlanId) : Promise.resolve([])).then(setMarkers);
+    (activePlanId ? getMarkersForPlan(activePlanId) : Promise.resolve([])).then((ms) => {
+      setMarkers(ms);
+      const markerParam = new URLSearchParams(window.location.search).get("marker");
+      if (markerParam && ms.some((m) => m.id === markerParam)) {
+        setActiveMarkerId(markerParam);
+        canvasContainerRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    });
   }, [activePlanId]);
 
   const activePlan = plans.find((p) => p.id === activePlanId) ?? null;
@@ -127,7 +139,10 @@ export default function PlansPage() {
         {plans.map((plan) => (
           <button
             key={plan.id}
-            onClick={() => setActivePlanId(plan.id)}
+            onClick={() => {
+              setActivePlanId(plan.id);
+              setActiveMarkerId(null);
+            }}
             className={`rounded-full px-3 py-1.5 text-xs font-medium ${
               activePlanId === plan.id
                 ? "bg-accent text-white"
@@ -154,7 +169,7 @@ export default function PlansPage() {
       {plans.length === 0 && <p className="mt-8 text-center text-sm text-stone-400 dark:text-stone-500">{t("noPlans", lang)}</p>}
 
       {activePlan && activeImageUrl && (
-        <div className="mt-4">
+        <div ref={canvasContainerRef} className="mt-4">
           <div className="mb-3 flex items-center gap-2">
             <input
               key={activePlan.id}
@@ -195,8 +210,11 @@ export default function PlansPage() {
             </>
           )}
           <PlanCanvas
+            surveyId={surveyId}
             imageUrl={activeImageUrl}
             markers={markerViews}
+            activeMarkerId={activeMarkerId}
+            onActiveMarkerIdChange={setActiveMarkerId}
             onPlace={handlePlace}
             onDeleteMarker={handleDeleteMarker}
             placementEnabled={pathologies.length > 0}

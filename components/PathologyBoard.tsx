@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { EMPTY_GROUP_KEY, groupPathologies } from "@/lib/grouping";
 import { PATHOLOGY_SUGGESTIONS } from "@/lib/pathology-suggestions";
-import { GroupMode, Lot, Pathology } from "@/lib/types";
+import { GroupMode, Lot, Pathology, PlanMarker } from "@/lib/types";
 import { useLang } from "@/lib/lang-context";
 import { t } from "@/lib/i18n";
 import PathologyCard from "./PathologyCard";
@@ -12,7 +12,6 @@ import PathologyCard from "./PathologyCard";
 export interface AddPathologySpec {
   lotId: string;
   zone?: string;
-  disorderType?: string;
   label?: string;
 }
 
@@ -20,7 +19,7 @@ export default function PathologyBoard({
   surveyId,
   pathologies,
   lots,
-  locatedPathologyIds,
+  markersByPathology,
   onAdd,
   onUpdate,
   onDelete,
@@ -31,7 +30,7 @@ export default function PathologyBoard({
   surveyId: string;
   pathologies: Pathology[];
   lots: Lot[];
-  locatedPathologyIds: Set<string>;
+  markersByPathology: Record<string, PlanMarker>;
   onAdd: (spec: AddPathologySpec) => void;
   onUpdate: (id: string, patch: Partial<Pathology>) => void;
   onDelete: (id: string) => void;
@@ -50,12 +49,8 @@ export default function PathologyBoard({
   function handleAddToGroup(group: (typeof groups)[number]) {
     if (mode === "lot") {
       onAdd({ lotId: group.lot!.id });
-    } else if (!defaultLotId) {
-      return;
-    } else if (mode === "zone") {
+    } else if (defaultLotId) {
       onAdd({ lotId: defaultLotId, zone: group.key === EMPTY_GROUP_KEY ? "" : group.key });
-    } else {
-      onAdd({ lotId: defaultLotId, disorderType: group.key === EMPTY_GROUP_KEY ? "" : group.key });
     }
   }
 
@@ -65,21 +60,19 @@ export default function PathologyBoard({
     if (mode === "lot") {
       onAddLot(name);
     } else if (defaultLotId) {
-      if (mode === "zone") onAdd({ lotId: defaultLotId, zone: name });
-      else onAdd({ lotId: defaultLotId, disorderType: name });
+      onAdd({ lotId: defaultLotId, zone: name });
     }
     setNewGroupName("");
     setAddingGroup(false);
   }
 
-  const newGroupLabel = mode === "lot" ? t("newLot", lang) : mode === "zone" ? t("newZone", lang) : t("newDisorderType", lang);
-  const newGroupPlaceholder =
-    mode === "lot" ? t("lotNamePlaceholder", lang) : mode === "zone" ? t("zonePlaceholder", lang) : t("disorderTypePlaceholder", lang);
+  const newGroupLabel = mode === "lot" ? t("newLot", lang) : t("newZone", lang);
+  const newGroupPlaceholder = mode === "lot" ? t("lotNamePlaceholder", lang) : t("zonePlaceholder", lang);
 
   return (
     <div className="space-y-4">
       <div className="flex gap-1 rounded-full bg-stone-100 p-1 text-xs dark:bg-stone-900">
-        {(["lot", "zone", "disorderType"] as GroupMode[]).map((m) => (
+        {(["lot", "zone"] as GroupMode[]).map((m) => (
           <button
             key={m}
             onClick={() => setMode(m)}
@@ -89,7 +82,7 @@ export default function PathologyBoard({
                 : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-50"
             }`}
           >
-            {m === "lot" ? t("groupByLot", lang) : m === "zone" ? t("groupByZone", lang) : t("groupByType", lang)}
+            {m === "lot" ? t("groupByLot", lang) : t("groupByZone", lang)}
           </button>
         ))}
       </div>
@@ -131,7 +124,7 @@ export default function PathologyBoard({
 
       {groups.map((group) => {
         if (mode !== "lot" && group.key === EMPTY_GROUP_KEY && group.items.length === 0) return null;
-        const groupLabel = group.label || (mode === "zone" ? t("unzoned", lang) : t("untyped", lang));
+        const groupLabel = group.label || t("unzoned", lang);
         return (
           <section
             key={group.key}
@@ -155,7 +148,7 @@ export default function PathologyBoard({
                     pathology={pathology}
                     lots={lots}
                     groupMode={mode}
-                    locatedOnPlan={locatedPathologyIds.has(pathology.id)}
+                    marker={markersByPathology[pathology.id] ?? null}
                     onUpdate={onUpdate}
                     onDelete={onDelete}
                   />

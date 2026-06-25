@@ -3,9 +3,10 @@ import { Lang } from "./types";
 export const STRINGS = {
   appName: { fr: "Relevo", en: "Relevo" },
   tagline: {
-    fr: "Diagnostic terrain pour le bâti ancien",
-    en: "Field diagnostics for historic buildings",
+    fr: "Relevez les pathologies d'un bâtiment ancien sur le terrain, photographiez-les, repérez-les sur plan, puis générez un rapport PDF.",
+    en: "Survey pathologies in a historic building on site, photograph them, locate them on a plan, then generate a PDF report.",
   },
+  backupData: { fr: "Sauvegarder ou restaurer mes relevés", en: "Back up or restore my surveys" },
   newSurvey: { fr: "Nouveau relevé", en: "New survey" },
   noSurveys: {
     fr: "Aucun relevé pour l'instant.",
@@ -70,17 +71,12 @@ export const STRINGS = {
   noDocuments: { fr: "Aucun document pour l'instant.", en: "No documents yet." },
   groupByLot: { fr: "Par lot", en: "By trade" },
   groupByZone: { fr: "Par zone", en: "By zone" },
-  groupByType: { fr: "Par type de désordre", en: "By disorder type" },
   zone: { fr: "Zone", en: "Zone" },
   zonePlaceholder: { fr: "ex : façade nord, RDC…", en: "e.g. north facade, ground floor…" },
-  disorderType: { fr: "Type de désordre", en: "Disorder type" },
-  disorderTypePlaceholder: { fr: "ex : fissure, humidité…", en: "e.g. crack, dampness…" },
   unzoned: { fr: "Zone non précisée", en: "Unspecified zone" },
-  untyped: { fr: "Type non précisé", en: "Unspecified type" },
   newLot: { fr: "Nouveau lot", en: "New trade section" },
   lotNamePlaceholder: { fr: "ex : Étanchéité, VRD…", en: "e.g. Waterproofing, Sitework…" },
   newZone: { fr: "Nouvelle zone", en: "New zone" },
-  newDisorderType: { fr: "Nouveau type de désordre", en: "New disorder type" },
   deleteLotBlocked: {
     fr: "Videz ce lot avant de le supprimer",
     en: "Empty this trade section before deleting it",
@@ -90,6 +86,7 @@ export const STRINGS = {
     en: "No trade sections defined. Create one in the « By trade » tab.",
   },
   locatedOnPlan: { fr: "Repéré sur plan", en: "Located on plan" },
+  viewPathologyCard: { fr: "Voir la fiche", en: "View pathology" },
   storageUnavailable: {
     fr: "Stockage local indisponible dans ce navigateur",
     en: "Local storage is unavailable in this browser",
