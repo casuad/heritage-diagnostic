@@ -6,6 +6,10 @@ const DB_VERSION = 3;
 
 let dbPromise: Promise<IDBPDatabase> | null = null;
 
+export function isStorageAvailable() {
+  return typeof indexedDB !== "undefined";
+}
+
 function getDb() {
   if (typeof indexedDB === "undefined") {
     throw new Error("IndexedDB is not available in this environment");

@@ -76,6 +76,18 @@ export const STRINGS = {
   untyped: { fr: "Type non précisé", en: "Unspecified type" },
   newGroup: { fr: "Nouveau groupe", en: "New group" },
   locatedOnPlan: { fr: "Repéré sur plan", en: "Located on plan" },
+  storageUnavailable: {
+    fr: "Stockage local indisponible dans ce navigateur",
+    en: "Local storage is unavailable in this browser",
+  },
+  storageUnavailableHint: {
+    fr: "Cet outil enregistre tout sur l'appareil (IndexedDB). En navigation privée, avec les cookies bloqués, ou avec certaines extensions de confidentialité, ce stockage peut être désactivé. Essayez en navigation normale ou avec un autre navigateur (Chrome, Firefox, Safari hors navigation privée).",
+    en: "This tool saves everything on-device (IndexedDB). Private browsing, blocked cookies, or some privacy extensions can disable this storage. Try regular browsing mode or another browser (Chrome, Firefox, Safari outside private browsing).",
+  },
+  saveError: {
+    fr: "Impossible d'enregistrer — vérifiez les paramètres de confidentialité de votre navigateur.",
+    en: "Could not save — check your browser's privacy settings.",
+  },
 } as const;
 
 export function t(key: keyof typeof STRINGS, lang: Lang) {

@@ -21,9 +21,11 @@ export default function NewSurveyPage() {
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [notes, setNotes] = useState("");
   const [diagnosticContext, setDiagnosticContext] = useState("");
+  const [error, setError] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setError("");
     const now = new Date().toISOString();
     const survey: Survey = {
       id: newId(),
@@ -38,8 +40,12 @@ export default function NewSurveyPage() {
       createdAt: now,
       updatedAt: now,
     };
-    await saveSurvey(survey);
-    router.push(`/survey/${survey.id}`);
+    try {
+      await saveSurvey(survey);
+      router.push(`/survey/${survey.id}`);
+    } catch {
+      setError(t("saveError", lang));
+    }
   }
 
   return (
@@ -92,6 +98,8 @@ export default function NewSurveyPage() {
           onChange={setDiagnosticContext}
           placeholder={t("diagnosticContextPlaceholder", lang)}
         />
+
+        {error && <p className="text-sm text-red-600">{error}</p>}
 
         <button
           type="submit"

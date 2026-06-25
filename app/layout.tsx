@@ -4,6 +4,7 @@ import "./globals.css";
 import { LangProvider } from "@/lib/lang-context";
 import Header from "@/components/Header";
 import RegisterSW from "@/components/RegisterSW";
+import StorageWarning from "@/components/StorageWarning";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -43,6 +44,7 @@ export default function RootLayout({
         <LangProvider>
           <RegisterSW />
           <Header />
+          <StorageWarning />
           <main className="flex-1">{children}</main>
         </LangProvider>
       </body>
