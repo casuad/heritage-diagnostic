@@ -45,8 +45,9 @@ export default function NewSurveyPage() {
       await saveSurvey(survey);
       await Promise.all(defaultLotsFor(survey.id, lang).map(saveLot));
       router.push(`/survey/${survey.id}`);
-    } catch {
-      setError(t("saveError", lang));
+    } catch (err) {
+      const blocked = err instanceof Error && err.message.includes("blocked");
+      setError(t(blocked ? "saveErrorBlocked" : "saveError", lang));
     }
   }
 

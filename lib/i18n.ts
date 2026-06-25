@@ -102,6 +102,10 @@ export const STRINGS = {
     fr: "Impossible d'enregistrer — vérifiez les paramètres de confidentialité de votre navigateur.",
     en: "Could not save — check your browser's privacy settings.",
   },
+  saveErrorBlocked: {
+    fr: "Impossible d'enregistrer — fermez les autres onglets ouverts sur cette application, puis réessayez.",
+    en: "Could not save — close other open tabs of this app, then try again.",
+  },
   renamePlan: { fr: "Renommer le plan", en: "Rename plan" },
   switchToDark: { fr: "Passer en mode sombre", en: "Switch to dark mode" },
   switchToLight: { fr: "Passer en mode clair", en: "Switch to light mode" },

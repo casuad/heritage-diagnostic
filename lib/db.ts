@@ -10,45 +10,79 @@ export function isStorageAvailable() {
   return typeof indexedDB !== "undefined";
 }
 
+// If an older tab/connection is still open elsewhere when the schema version
+// bumps, the browser blocks this connection's upgrade indefinitely instead of
+// rejecting — the openDB() promise just never settles. `blocking` makes any
+// connection opened by this code self-close the moment a newer version shows
+// up, so it can't itself become the thing blocking some future tab.
+function openDatabase() {
+  return openDB(DB_NAME, DB_VERSION, {
+    upgrade(db) {
+      if (!db.objectStoreNames.contains("surveys")) {
+        db.createObjectStore("surveys", { keyPath: "id" });
+      }
+      if (!db.objectStoreNames.contains("photos")) {
+        const photos = db.createObjectStore("photos", { keyPath: "id" });
+        photos.createIndex("by-survey", "surveyId");
+        photos.createIndex("by-pathology", "pathologyId");
+      }
+
+      if (!db.objectStoreNames.contains("pathologies")) {
+        const pathologies = db.createObjectStore("pathologies", { keyPath: "id" });
+        pathologies.createIndex("by-survey", "surveyId");
+      }
+      if (!db.objectStoreNames.contains("plans")) {
+        const plans = db.createObjectStore("plans", { keyPath: "id" });
+        plans.createIndex("by-survey", "surveyId");
+      }
+      if (!db.objectStoreNames.contains("planMarkers")) {
+        const markers = db.createObjectStore("planMarkers", { keyPath: "id" });
+        markers.createIndex("by-plan", "planId");
+        markers.createIndex("by-pathology", "pathologyId");
+      }
+      if (!db.objectStoreNames.contains("documents")) {
+        const documents = db.createObjectStore("documents", { keyPath: "id" });
+        documents.createIndex("by-survey", "surveyId");
+      }
+      if (!db.objectStoreNames.contains("lots")) {
+        const lots = db.createObjectStore("lots", { keyPath: "id" });
+        lots.createIndex("by-survey", "surveyId");
+      }
+    },
+    blocking() {
+      dbPromise?.then((db) => db.close());
+      dbPromise = null;
+    },
+  });
+}
+
+// A connection blocked by an older tab never resolves or rejects on its own —
+// without this timeout, an await on it just hangs forever with no feedback.
+function withBlockedTimeout(promise: Promise<IDBPDatabase>) {
+  return new Promise<IDBPDatabase>((resolve, reject) => {
+    const timer = setTimeout(() => {
+      dbPromise = null;
+      reject(new Error("IndexedDB upgrade blocked by another open tab"));
+    }, 4000);
+    promise.then(
+      (db) => {
+        clearTimeout(timer);
+        resolve(db);
+      },
+      (err) => {
+        clearTimeout(timer);
+        reject(err);
+      }
+    );
+  });
+}
+
 function getDb() {
   if (typeof indexedDB === "undefined") {
     throw new Error("IndexedDB is not available in this environment");
   }
   if (!dbPromise) {
-    dbPromise = openDB(DB_NAME, DB_VERSION, {
-      upgrade(db) {
-        if (!db.objectStoreNames.contains("surveys")) {
-          db.createObjectStore("surveys", { keyPath: "id" });
-        }
-        if (!db.objectStoreNames.contains("photos")) {
-          const photos = db.createObjectStore("photos", { keyPath: "id" });
-          photos.createIndex("by-survey", "surveyId");
-          photos.createIndex("by-pathology", "pathologyId");
-        }
-
-        if (!db.objectStoreNames.contains("pathologies")) {
-          const pathologies = db.createObjectStore("pathologies", { keyPath: "id" });
-          pathologies.createIndex("by-survey", "surveyId");
-        }
-        if (!db.objectStoreNames.contains("plans")) {
-          const plans = db.createObjectStore("plans", { keyPath: "id" });
-          plans.createIndex("by-survey", "surveyId");
-        }
-        if (!db.objectStoreNames.contains("planMarkers")) {
-          const markers = db.createObjectStore("planMarkers", { keyPath: "id" });
-          markers.createIndex("by-plan", "planId");
-          markers.createIndex("by-pathology", "pathologyId");
-        }
-        if (!db.objectStoreNames.contains("documents")) {
-          const documents = db.createObjectStore("documents", { keyPath: "id" });
-          documents.createIndex("by-survey", "surveyId");
-        }
-        if (!db.objectStoreNames.contains("lots")) {
-          const lots = db.createObjectStore("lots", { keyPath: "id" });
-          lots.createIndex("by-survey", "surveyId");
-        }
-      },
-    });
+    dbPromise = withBlockedTimeout(openDatabase());
   }
   return dbPromise;
 }
