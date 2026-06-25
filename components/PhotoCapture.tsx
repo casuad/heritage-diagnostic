@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Camera, X } from "lucide-react";
 import { addPhoto, deletePhoto, getPhotosForPathology } from "@/lib/db";
 import { newId } from "@/lib/id";
+import { rasterizeImage } from "@/lib/rasterize";
 import { PhotoRecord } from "@/lib/types";
 import { useLang } from "@/lib/lang-context";
 import { t } from "@/lib/i18n";
@@ -23,6 +24,7 @@ export default function PhotoCapture({ surveyId, pathologyId }: { surveyId: stri
   const { lang } = useLang();
   const [photos, setPhotos] = useState<PhotoRecord[]>([]);
   const [locating, setLocating] = useState(false);
+  const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
     getPhotosForPathology(pathologyId).then(setPhotos);
@@ -35,16 +37,22 @@ export default function PhotoCapture({ surveyId, pathologyId }: { surveyId: stri
     setLocating(true);
     const geo = await getGeo();
     setLocating(false);
-    const photo: PhotoRecord = {
-      id: newId(),
-      surveyId,
-      pathologyId,
-      blob: file,
-      takenAt: new Date().toISOString(),
-      geo,
-    };
-    await addPhoto(photo);
-    setPhotos((prev) => [...prev, photo]);
+    setProcessing(true);
+    try {
+      const blob = await rasterizeImage(file);
+      const photo: PhotoRecord = {
+        id: newId(),
+        surveyId,
+        pathologyId,
+        blob,
+        takenAt: new Date().toISOString(),
+        geo,
+      };
+      await addPhoto(photo);
+      setPhotos((prev) => [...prev, photo]);
+    } finally {
+      setProcessing(false);
+    }
   }
 
   async function handleDelete(id: string) {
@@ -67,15 +75,20 @@ export default function PhotoCapture({ surveyId, pathologyId }: { surveyId: stri
           </button>
         </div>
       ))}
-      <label className="flex h-16 w-16 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-stone-300 text-stone-400 hover:border-accent hover:text-accent dark:border-stone-700 dark:text-stone-500">
+      <label
+        className={`flex h-16 w-16 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-stone-300 text-stone-400 hover:border-accent hover:text-accent dark:border-stone-700 dark:text-stone-500 ${
+          processing ? "pointer-events-none opacity-60" : ""
+        }`}
+      >
         <Camera className="h-4 w-4" strokeWidth={1.5} />
-        <span className="text-[9px]">{locating ? t("locating", lang) : t("addPhoto", lang)}</span>
+        <span className="text-[9px]">{locating ? t("locating", lang) : processing ? t("processing", lang) : t("addPhoto", lang)}</span>
         <input
           type="file"
           accept="image/*"
           capture="environment"
           className="hidden"
           onChange={handleFile}
+          disabled={processing}
         />
       </label>
     </div>

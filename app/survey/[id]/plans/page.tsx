@@ -173,7 +173,7 @@ export default function PlansPage() {
           }`}
         >
           <Upload className="h-3.5 w-3.5" strokeWidth={1.5} />
-          {uploading ? t("processingPlan", lang) : t("uploadPlan", lang)}
+          {uploading ? t("processing", lang) : t("uploadPlan", lang)}
           <input type="file" accept="image/*,application/pdf" className="hidden" onChange={handleUpload} disabled={uploading} />
         </label>
       </div>

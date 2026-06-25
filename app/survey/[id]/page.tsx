@@ -177,6 +177,8 @@ export default function SurveyDetailPage() {
       </div>
 
       <div className="mt-6 space-y-4">
+        <DocumentsSection surveyId={survey.id} />
+
         <section className="rounded-xl border border-stone-200 bg-white p-4 dark:border-stone-800 dark:bg-stone-900/60">
           <label className="mb-1 block text-sm font-medium text-stone-700 dark:text-stone-300">{t("notes", lang)}</label>
           <textarea
@@ -210,8 +212,6 @@ export default function SurveyDetailPage() {
         />
 
         <PlansSection surveyId={survey.id} />
-
-        <DocumentsSection surveyId={survey.id} />
 
         <SynthesisPanel surveyId={survey.id} pathologies={pathologies} />
       </div>

@@ -36,7 +36,7 @@ async function rasterizePdf(file: File): Promise<Blob> {
   return canvasToBlob(canvas);
 }
 
-async function rasterizeImage(file: File): Promise<Blob> {
+export async function rasterizeImage(file: File): Promise<Blob> {
   const bitmap = await createImageBitmap(file);
   const { width, height } = scaleDown(bitmap.width, bitmap.height);
   const canvas = document.createElement("canvas");

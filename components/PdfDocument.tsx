@@ -182,7 +182,9 @@ export default function PdfDocument({
         )}
 
         <Text style={styles.footer}>
-          {lang === "fr" ? "Généré avec Relevé Patrimoine — outil open source" : "Generated with Heritage Survey — open source tool"}
+          {lang === "fr"
+            ? "Publié avec Relevo - Pour l'ingénierie de la construction"
+            : "Published with Relevo — For construction engineering"}
         </Text>
       </Page>
     </Document>

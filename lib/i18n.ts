@@ -47,7 +47,7 @@ export const STRINGS = {
   addFirstPlan: { fr: "Ajouter un premier plan", en: "Add a first plan" },
   managePlans: { fr: "Repérer sur le plan", en: "Locate on the plan" },
   uploadPlan: { fr: "Ajouter un plan", en: "Upload a plan" },
-  processingPlan: { fr: "Traitement…", en: "Processing…" },
+  processing: { fr: "Traitement…", en: "Processing…" },
   noPlans: { fr: "Aucun plan pour l'instant.", en: "No plans yet." },
   planName: { fr: "Nom du plan", en: "Plan name" },
   placeMarkerHint: {
@@ -71,8 +71,8 @@ export const STRINGS = {
   },
   documents: { fr: "Documents", en: "Documents" },
   documentsHint: {
-    fr: "Pièces jointes au relevé (devis, photos d'ensemble, courriers…). Pour annoter un plan et y localiser des pathologies, utilisez la section « Plans » ci-dessus.",
-    en: "Attachments to the survey (quotes, overview photos, letters…). To annotate a plan and locate pathologies on it, use the « Plans » section above.",
+    fr: "Centralisez ici les pièces liées au diagnostic (devis, photos d'ensemble, courriers…) : à terme, une IA pourra les résumer pour affiner la compréhension du contexte. Pour annoter un plan et y localiser des pathologies, utilisez la section « Plans » plus bas.",
+    en: "Centralize here the documents related to the survey (quotes, overview photos, letters…): an AI will eventually summarize them to deepen context understanding. To annotate a plan and locate pathologies on it, use the « Plans » section further down.",
   },
   uploadDocument: { fr: "Ajouter un document", en: "Upload a document" },
   noDocuments: { fr: "Aucun document pour l'instant.", en: "No documents yet." },
