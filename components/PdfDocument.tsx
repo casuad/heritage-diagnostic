@@ -16,6 +16,8 @@ const styles = StyleSheet.create({
   countLabel: { fontSize: 8, color: "#57534e" },
   categoryTitle: { fontSize: 12, fontWeight: 700, marginTop: 16, marginBottom: 6 },
   item: { marginBottom: 10, paddingBottom: 10, borderBottom: "0.5pt solid #f1f0ef" },
+  introParagraph: { fontSize: 9.5, lineHeight: 1.5, color: "#44403c", marginBottom: 8 },
+  introLabel: { fontSize: 8, fontWeight: 700, color: "#78716c", marginBottom: 2, textTransform: "uppercase" },
   itemHeader: { flexDirection: "row", alignItems: "center" },
   itemCode: { fontSize: 8, fontFamily: "Helvetica-Bold", backgroundColor: "#f1f0ef", color: "#57534e", padding: "2 5", borderRadius: 3, marginRight: 6 },
   itemLabel: { fontSize: 10, fontWeight: 700, flex: 1, marginRight: 8 },
@@ -71,6 +73,28 @@ export default function PdfDocument({
       <Page size="A4" style={styles.page}>
         <Text style={styles.title}>{title}</Text>
         <Text style={styles.subtitle}>{survey.buildingName || "—"}</Text>
+
+        {(survey.diagnosticContext || survey.notes) && (
+          <View>
+            <Text style={styles.sectionTitle}>{lang === "fr" ? "Introduction" : "Introduction"}</Text>
+            {survey.diagnosticContext && (
+              <View>
+                <Text style={styles.introLabel}>
+                  {lang === "fr" ? "Contexte & raisons du diagnostic" : "Context & reasons for the survey"}
+                </Text>
+                <Text style={styles.introParagraph}>{survey.diagnosticContext}</Text>
+              </View>
+            )}
+            {survey.notes && (
+              <View>
+                <Text style={styles.introLabel}>
+                  {lang === "fr" ? "Description visuelle & principes constructifs" : "Visual description & construction principles"}
+                </Text>
+                <Text style={styles.introParagraph}>{survey.notes}</Text>
+              </View>
+            )}
+          </View>
+        )}
 
         <View style={styles.infoRow}>
           <Text style={styles.infoLabel}>{lang === "fr" ? "Adresse" : "Address"}</Text>

@@ -19,6 +19,8 @@ export default function NewSurveyPage() {
   const [buildingType, setBuildingType] = useState("");
   const [surveyor, setSurveyor] = useState("");
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [notes, setNotes] = useState("");
+  const [diagnosticContext, setDiagnosticContext] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -31,6 +33,8 @@ export default function NewSurveyPage() {
       surveyor,
       date,
       geo,
+      notes,
+      diagnosticContext,
       createdAt: now,
       updatedAt: now,
     };
@@ -59,7 +63,12 @@ export default function NewSurveyPage() {
           </div>
         )}
 
-        <Field label={t("buildingType", lang)} value={buildingType} onChange={setBuildingType} />
+        <Field
+          label={t("buildingType", lang)}
+          value={buildingType}
+          onChange={setBuildingType}
+          placeholder={t("buildingTypePlaceholder", lang)}
+        />
         <Field label={t("surveyor", lang)} value={surveyor} onChange={setSurveyor} />
         <div>
           <label className="mb-1 block text-sm font-medium text-stone-700">{t("date", lang)}</label>
@@ -70,6 +79,20 @@ export default function NewSurveyPage() {
             className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-stone-900 focus:outline-none"
           />
         </div>
+
+        <TextAreaField
+          label={t("notes", lang)}
+          value={notes}
+          onChange={setNotes}
+          placeholder={t("notesPlaceholder", lang)}
+        />
+        <TextAreaField
+          label={t("diagnosticContext", lang)}
+          value={diagnosticContext}
+          onChange={setDiagnosticContext}
+          placeholder={t("diagnosticContextPlaceholder", lang)}
+        />
+
         <button
           type="submit"
           className="w-full rounded-xl bg-stone-900 px-4 py-3 font-medium text-white transition-colors hover:bg-stone-800"
@@ -86,11 +109,13 @@ function Field({
   value,
   onChange,
   required,
+  placeholder,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   required?: boolean;
+  placeholder?: string;
 }) {
   return (
     <div>
@@ -99,8 +124,34 @@ function Field({
         type="text"
         value={value}
         required={required}
+        placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
         className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-stone-900 focus:outline-none"
+      />
+    </div>
+  );
+}
+
+function TextAreaField({
+  label,
+  value,
+  onChange,
+  placeholder,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+}) {
+  return (
+    <div>
+      <label className="mb-1 block text-sm font-medium text-stone-700">{label}</label>
+      <textarea
+        value={value}
+        placeholder={placeholder}
+        onChange={(e) => onChange(e.target.value)}
+        rows={3}
+        className="w-full resize-none rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-stone-900 focus:outline-none"
       />
     </div>
   );

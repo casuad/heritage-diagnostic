@@ -1,12 +1,17 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Trash2 } from "lucide-react";
+import { getPhotosForPathology } from "@/lib/db";
+import { PhotoRecord } from "@/lib/types";
 
 export interface PlanMarkerView {
   id: string;
   x: number;
   y: number;
   code: string;
+  label: string;
+  pathologyId: string;
 }
 
 export default function PlanCanvas({
@@ -23,8 +28,21 @@ export default function PlanCanvas({
   placementEnabled: boolean;
 }) {
   const imgRef = useRef<HTMLImageElement>(null);
+  const [activeMarkerId, setActiveMarkerId] = useState<string | null>(null);
+  const [photos, setPhotos] = useState<PhotoRecord[]>([]);
+
+  const activeMarker = markers.find((m) => m.id === activeMarkerId) ?? null;
+  const activePathologyId = activeMarker?.pathologyId ?? null;
+
+  useEffect(() => {
+    (activePathologyId ? getPhotosForPathology(activePathologyId) : Promise.resolve([])).then(setPhotos);
+  }, [activePathologyId]);
 
   function handleClick(e: React.MouseEvent<HTMLDivElement>) {
+    if (activeMarkerId) {
+      setActiveMarkerId(null);
+      return;
+    }
     if (!placementEnabled || !imgRef.current) return;
     const rect = imgRef.current.getBoundingClientRect();
     if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) return;
@@ -47,14 +65,57 @@ export default function PlanCanvas({
           title={marker.code}
           onClick={(e) => {
             e.stopPropagation();
-            onDeleteMarker(marker.id);
+            setActiveMarkerId(marker.id === activeMarkerId ? null : marker.id);
           }}
-          className="absolute flex h-6 w-6 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-stone-900 text-[9px] font-bold text-white shadow-md ring-2 ring-white hover:bg-red-600"
+          className="absolute flex h-6 w-6 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-stone-900 text-[9px] font-bold text-white shadow-md ring-2 ring-white hover:bg-stone-700"
           style={{ left: `${marker.x}%`, top: `${marker.y}%` }}
         >
           {marker.code.split("-")[1] ?? marker.code}
         </button>
       ))}
+
+      {activeMarker && (
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className="absolute z-10 w-48 -translate-x-1/2 rounded-lg border border-stone-200 bg-white p-2.5 shadow-lg"
+          style={{
+            left: `${activeMarker.x}%`,
+            top: `${activeMarker.y}%`,
+            marginTop: "16px",
+          }}
+        >
+          <div className="flex items-start justify-between gap-2">
+            <div>
+              <p className="font-mono text-[10px] font-medium text-stone-500">{activeMarker.code}</p>
+              <p className="text-xs text-stone-800">{activeMarker.label || "—"}</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                onDeleteMarker(activeMarker.id);
+                setActiveMarkerId(null);
+              }}
+              className="shrink-0 rounded-full p-1 text-stone-400 hover:bg-red-50 hover:text-red-600"
+            >
+              <Trash2 className="h-3 w-3" strokeWidth={1.5} />
+            </button>
+          </div>
+          {photos.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-1">
+              {photos.map((photo) => (
+                // eslint-disable-next-line @next/next/no-img-element -- in-memory blob URL
+                <img
+                  key={photo.id}
+                  src={URL.createObjectURL(photo.blob)}
+                  alt=""
+                  className="h-10 w-10 rounded object-cover"
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
     </div>
   );
 }

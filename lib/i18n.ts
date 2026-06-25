@@ -16,6 +16,10 @@ export const STRINGS = {
   addressPlaceholder: { fr: "Commencez à taper l'adresse…", en: "Start typing the address…" },
   verifyBuilding: { fr: "Vérifier le bâtiment sur la carte", en: "Verify the building on the map" },
   buildingType: { fr: "Type de bâtiment", en: "Building type" },
+  buildingTypePlaceholder: {
+    fr: "ex : résidentiel individuel, locaux commerciaux…",
+    en: "e.g. single-family residential, commercial premises…",
+  },
   surveyor: { fr: "Diagnostiqueur", en: "Surveyor" },
   date: { fr: "Date", en: "Date" },
   create: { fr: "Créer le relevé", en: "Create survey" },
@@ -47,6 +51,31 @@ export const STRINGS = {
     fr: "Ajoutez d'abord des pathologies dans les lots pour pouvoir les localiser.",
     en: "Add pathologies in the trade sections first to be able to locate them.",
   },
+  notes: { fr: "Description visuelle & principes constructifs", en: "Visual description & construction principles" },
+  notesPlaceholder: {
+    fr: "Aspect général, matériaux apparents, système constructif observé…",
+    en: "General appearance, visible materials, observed construction system…",
+  },
+  diagnosticContext: { fr: "Contexte & raisons du diagnostic", en: "Context & reasons for the survey" },
+  diagnosticContextPlaceholder: {
+    fr: "Problématiques signalées, motif de la demande, antécédents…",
+    en: "Reported issues, reason for the request, history…",
+  },
+  documents: { fr: "Documents", en: "Documents" },
+  uploadDocument: { fr: "Ajouter un document", en: "Upload a document" },
+  noDocuments: { fr: "Aucun document pour l'instant.", en: "No documents yet." },
+  groupByLot: { fr: "Par lot", en: "By trade" },
+  groupByZone: { fr: "Par zone", en: "By zone" },
+  groupByType: { fr: "Par type de désordre", en: "By disorder type" },
+  zone: { fr: "Zone", en: "Zone" },
+  zonePlaceholder: { fr: "ex : façade nord, RDC…", en: "e.g. north facade, ground floor…" },
+  disorderType: { fr: "Type de désordre", en: "Disorder type" },
+  disorderTypePlaceholder: { fr: "ex : fissure, humidité…", en: "e.g. crack, dampness…" },
+  lot: { fr: "Lot", en: "Trade" },
+  unzoned: { fr: "Zone non précisée", en: "Unspecified zone" },
+  untyped: { fr: "Type non précisé", en: "Unspecified type" },
+  newGroup: { fr: "Nouveau groupe", en: "New group" },
+  locatedOnPlan: { fr: "Repéré sur plan", en: "Located on plan" },
 } as const;
 
 export function t(key: keyof typeof STRINGS, lang: Lang) {

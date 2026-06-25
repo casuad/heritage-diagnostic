@@ -93,7 +93,14 @@ export default function PlansPage() {
 
   const markerViews = markers
     .filter((m) => pathologyById[m.pathologyId])
-    .map((m) => ({ id: m.id, x: m.x, y: m.y, code: pathologyById[m.pathologyId].code }));
+    .map((m) => ({
+      id: m.id,
+      x: m.x,
+      y: m.y,
+      code: pathologyById[m.pathologyId].code,
+      label: pathologyById[m.pathologyId].label,
+      pathologyId: m.pathologyId,
+    }));
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">

@@ -32,12 +32,16 @@ export const CATEGORY_PREFIX: Record<Category, string> = {
 
 export const CATEGORIES: Category[] = ["structure", "maconnerie", "couverture", "humidite", "menuiserie"];
 
+export type GroupMode = "lot" | "zone" | "disorderType";
+
 export interface Pathology {
   id: string;
   surveyId: string;
   category: Category;
   code: string;
   label: string;
+  zone: string;
+  disorderType: string;
   severity: Severity | null;
   comment: string;
   createdAt: string;
@@ -56,8 +60,18 @@ export interface Survey {
   date: string;
   surveyor: string;
   geo?: GeoPoint | null;
+  notes: string;
+  diagnosticContext: string;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface DocumentRecord {
+  id: string;
+  surveyId: string;
+  name: string;
+  blob: Blob;
+  createdAt: string;
 }
 
 export interface PhotoRecord {

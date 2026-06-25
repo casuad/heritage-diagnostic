@@ -10,13 +10,16 @@ Les outils existants (ArchiSnapper, PocketSurvey, GoAudits…) couvrent le snagg
 
 ## Fonctionnalités
 
-- Organisation par grand lot (structure/charpente, maçonnerie, couverture, humidité, menuiserie/ferronnerie) — le diagnostiqueur ajoute librement les pathologies constatées dans chaque lot (suggestions rapides disponibles, texte libre toujours possible)
-- Numérotation intelligente automatique par lot (ex. `STR-01`, `MAC-02`) — repère unique réutilisé sur les plans et dans le rapport
-- Notation de gravité à 4 niveaux (bon état → urgent) et photo géolocalisée par pathologie
+- Trois modes de saisie des pathologies : par lot, par zone, ou par type de désordre — la même donnée, vue sous l'angle le plus pratique sur le terrain
+- Numérotation intelligente automatique par lot (ex. `STR-01`, `MAC-02`) — repère unique réutilisé sur les plans et dans le rapport, recalculé si le lot change
+- Suggestions rapides de pathologies par lot, texte libre toujours possible
+- Notation de gravité à 4 niveaux (bon état → urgent), photo géolocalisée et commentaire par pathologie
 - Adresse en saisie assistée (autocomplétion via la Base Adresse Nationale) avec carte de vérification du bâtiment (OpenStreetMap)
-- Plans téléversables (façade, niveau…) avec placement des pathologies au clic, repérées par leur code
+- Notes libres : description visuelle / principes constructifs, et contexte / raisons du diagnostic — repris dans l'introduction du rapport
+- Documents joints au relevé (plans existants, diagnostics antérieurs…)
+- Plans téléversables (façade, niveau…) avec placement des pathologies au clic, repérées par leur code ; clic sur un repère pour voir la pathologie et ses photos liées
 - Synthèse de priorité globale, calculée automatiquement
-- Rapport PDF (page de garde, synthèse, pathologies par lot, plans annotés), bilingue FR/EN, entièrement généré côté client
+- Rapport PDF (introduction, synthèse, pathologies par lot, plans annotés), bilingue FR/EN, entièrement généré côté client
 - Export/import JSON pour sauvegarde, sans cloud
 - PWA installable, fonctionne hors connexion
 
@@ -39,7 +42,7 @@ Ouvrir [http://localhost:3000](http://localhost:3000).
 
 - Pas de multi-utilisateur ni de synchronisation cloud (choix volontaire — données 100% locales)
 - Plans en image uniquement (pas de PDF de plan, pas de mise à l'échelle/mesure)
-- Pas d'assistance IA à la rédaction (hors scope v1, envisageable en v2)
+- Pas de vue depuis la rue (street view), pas de dictée vocale, pas d'analyse IA des documents joints — en réflexion pour une v2, chacune impliquant une dépendance externe payante ou un backend
 
 ## Licence
 

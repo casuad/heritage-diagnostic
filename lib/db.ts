@@ -1,8 +1,8 @@
 import { openDB, type IDBPDatabase } from "idb";
-import { PhotoRecord, PlanMarker, PlanRecord, Pathology, Survey } from "./types";
+import { DocumentRecord, PhotoRecord, PlanMarker, PlanRecord, Pathology, Survey } from "./types";
 
 const DB_NAME = "heritage-diagnostic";
-const DB_VERSION = 2;
+const DB_VERSION = 3;
 
 let dbPromise: Promise<IDBPDatabase> | null = null;
 
@@ -16,12 +16,11 @@ function getDb() {
         if (!db.objectStoreNames.contains("surveys")) {
           db.createObjectStore("surveys", { keyPath: "id" });
         }
-        if (db.objectStoreNames.contains("photos")) {
-          db.deleteObjectStore("photos");
+        if (!db.objectStoreNames.contains("photos")) {
+          const photos = db.createObjectStore("photos", { keyPath: "id" });
+          photos.createIndex("by-survey", "surveyId");
+          photos.createIndex("by-pathology", "pathologyId");
         }
-        const photos = db.createObjectStore("photos", { keyPath: "id" });
-        photos.createIndex("by-survey", "surveyId");
-        photos.createIndex("by-pathology", "pathologyId");
 
         if (!db.objectStoreNames.contains("pathologies")) {
           const pathologies = db.createObjectStore("pathologies", { keyPath: "id" });
@@ -35,6 +34,10 @@ function getDb() {
           const markers = db.createObjectStore("planMarkers", { keyPath: "id" });
           markers.createIndex("by-plan", "planId");
           markers.createIndex("by-pathology", "pathologyId");
+        }
+        if (!db.objectStoreNames.contains("documents")) {
+          const documents = db.createObjectStore("documents", { keyPath: "id" });
+          documents.createIndex("by-survey", "surveyId");
         }
       },
     });
@@ -62,21 +65,26 @@ export async function getAllSurveys() {
 
 export async function deleteSurvey(id: string) {
   const db = await getDb();
-  const [photos, pathologies, plans] = await Promise.all([
+  const [photos, pathologies, plans, documents] = await Promise.all([
     getPhotosForSurvey(id),
     getPathologiesForSurvey(id),
     getPlansForSurvey(id),
+    getDocumentsForSurvey(id),
   ]);
   const markers = (
     await Promise.all(plans.map((plan) => getMarkersForPlan(plan.id)))
   ).flat();
 
-  const tx = db.transaction(["surveys", "photos", "pathologies", "plans", "planMarkers"], "readwrite");
+  const tx = db.transaction(
+    ["surveys", "photos", "pathologies", "plans", "planMarkers", "documents"],
+    "readwrite"
+  );
   await tx.objectStore("surveys").delete(id);
   for (const photo of photos) await tx.objectStore("photos").delete(photo.id);
   for (const pathology of pathologies) await tx.objectStore("pathologies").delete(pathology.id);
   for (const plan of plans) await tx.objectStore("plans").delete(plan.id);
   for (const marker of markers) await tx.objectStore("planMarkers").delete(marker.id);
+  for (const document of documents) await tx.objectStore("documents").delete(document.id);
   await tx.done;
 }
 
@@ -168,4 +176,28 @@ export async function getMarkersForPathology(pathologyId: string) {
 export async function deleteMarker(id: string) {
   const db = await getDb();
   await db.delete("planMarkers", id);
+}
+
+export async function getMarkersForSurvey(surveyId: string) {
+  const plans = await getPlansForSurvey(surveyId);
+  const markers = await Promise.all(plans.map((plan) => getMarkersForPlan(plan.id)));
+  return markers.flat();
+}
+
+// Documents
+
+export async function addDocument(document: DocumentRecord) {
+  const db = await getDb();
+  await db.put("documents", document);
+}
+
+export async function getDocumentsForSurvey(surveyId: string) {
+  const db = await getDb();
+  const all = (await db.getAllFromIndex("documents", "by-survey", surveyId)) as DocumentRecord[];
+  return all.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+}
+
+export async function deleteDocument(id: string) {
+  const db = await getDb();
+  await db.delete("documents", id);
 }
