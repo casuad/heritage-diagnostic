@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Plus, Download, Upload } from "lucide-react";
-import { getAllSurveys, saveSurvey } from "@/lib/db";
+import { deleteSurvey, getAllSurveys, saveSurvey } from "@/lib/db";
 import { Survey } from "@/lib/types";
 import { useLang } from "@/lib/lang-context";
 import { t } from "@/lib/i18n";
@@ -20,6 +20,11 @@ export default function HomePage() {
       setLoaded(true);
     });
   }, []);
+
+  async function handleDeleteSurvey(id: string) {
+    setSurveys((prev) => prev.filter((s) => s.id !== id));
+    await deleteSurvey(id);
+  }
 
   function exportJson() {
     const blob = new Blob([JSON.stringify(surveys, null, 2)], { type: "application/json" });
@@ -46,18 +51,18 @@ export default function HomePage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
       <div className="flex items-center justify-between gap-3">
-        <p className="text-sm text-stone-500">{t("tagline", lang)}</p>
+        <p className="text-sm text-stone-500 dark:text-stone-400">{t("tagline", lang)}</p>
         <div className="flex items-center gap-2">
           <button
             onClick={exportJson}
             title={t("exportJson", lang)}
-            className="rounded-full border border-stone-200 p-2 text-stone-500 hover:bg-stone-100"
+            className="rounded-full border border-stone-200 p-2 text-stone-500 hover:bg-stone-100 dark:border-stone-700 dark:text-stone-400 dark:hover:bg-stone-800"
           >
             <Download className="h-4 w-4" strokeWidth={1.5} />
           </button>
           <label
             title={t("importJson", lang)}
-            className="cursor-pointer rounded-full border border-stone-200 p-2 text-stone-500 hover:bg-stone-100"
+            className="cursor-pointer rounded-full border border-stone-200 p-2 text-stone-500 hover:bg-stone-100 dark:border-stone-700 dark:text-stone-400 dark:hover:bg-stone-800"
           >
             <Upload className="h-4 w-4" strokeWidth={1.5} />
             <input type="file" accept="application/json" className="hidden" onChange={importJson} />
@@ -67,7 +72,7 @@ export default function HomePage() {
 
       <Link
         href="/survey/new"
-        className="mt-6 flex items-center justify-center gap-2 rounded-xl bg-stone-900 px-4 py-3 font-medium text-white transition-colors hover:bg-stone-800"
+        className="mt-6 flex items-center justify-center gap-2 rounded-xl bg-accent px-4 py-3 font-medium text-white transition-colors hover:bg-accent-dark active:scale-[0.99]"
       >
         <Plus className="h-4 w-4" strokeWidth={2} />
         {t("newSurvey", lang)}
@@ -75,10 +80,10 @@ export default function HomePage() {
 
       <div className="mt-6 space-y-3">
         {loaded && surveys.length === 0 && (
-          <p className="py-12 text-center text-sm text-stone-400">{t("noSurveys", lang)}</p>
+          <p className="py-12 text-center text-sm text-stone-400 dark:text-stone-500">{t("noSurveys", lang)}</p>
         )}
         {surveys.map((survey) => (
-          <SurveyCard key={survey.id} survey={survey} />
+          <SurveyCard key={survey.id} survey={survey} onDelete={handleDeleteSurvey} />
         ))}
       </div>
     </div>

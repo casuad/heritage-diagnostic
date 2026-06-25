@@ -1,8 +1,8 @@
 import { openDB, type IDBPDatabase } from "idb";
-import { DocumentRecord, PhotoRecord, PlanMarker, PlanRecord, Pathology, Survey } from "./types";
+import { DocumentRecord, Lot, PhotoRecord, PlanMarker, PlanRecord, Pathology, Survey } from "./types";
 
 const DB_NAME = "heritage-diagnostic";
-const DB_VERSION = 3;
+const DB_VERSION = 4;
 
 let dbPromise: Promise<IDBPDatabase> | null = null;
 
@@ -43,6 +43,10 @@ function getDb() {
           const documents = db.createObjectStore("documents", { keyPath: "id" });
           documents.createIndex("by-survey", "surveyId");
         }
+        if (!db.objectStoreNames.contains("lots")) {
+          const lots = db.createObjectStore("lots", { keyPath: "id" });
+          lots.createIndex("by-survey", "surveyId");
+        }
       },
     });
   }
@@ -69,18 +73,19 @@ export async function getAllSurveys() {
 
 export async function deleteSurvey(id: string) {
   const db = await getDb();
-  const [photos, pathologies, plans, documents] = await Promise.all([
+  const [photos, pathologies, plans, documents, lots] = await Promise.all([
     getPhotosForSurvey(id),
     getPathologiesForSurvey(id),
     getPlansForSurvey(id),
     getDocumentsForSurvey(id),
+    getLotsForSurvey(id),
   ]);
   const markers = (
     await Promise.all(plans.map((plan) => getMarkersForPlan(plan.id)))
   ).flat();
 
   const tx = db.transaction(
-    ["surveys", "photos", "pathologies", "plans", "planMarkers", "documents"],
+    ["surveys", "photos", "pathologies", "plans", "planMarkers", "documents", "lots"],
     "readwrite"
   );
   await tx.objectStore("surveys").delete(id);
@@ -89,6 +94,7 @@ export async function deleteSurvey(id: string) {
   for (const plan of plans) await tx.objectStore("plans").delete(plan.id);
   for (const marker of markers) await tx.objectStore("planMarkers").delete(marker.id);
   for (const document of documents) await tx.objectStore("documents").delete(document.id);
+  for (const lot of lots) await tx.objectStore("lots").delete(lot.id);
   await tx.done;
 }
 
@@ -204,4 +210,22 @@ export async function getDocumentsForSurvey(surveyId: string) {
 export async function deleteDocument(id: string) {
   const db = await getDb();
   await db.delete("documents", id);
+}
+
+// Lots
+
+export async function saveLot(lot: Lot) {
+  const db = await getDb();
+  await db.put("lots", lot);
+}
+
+export async function getLotsForSurvey(surveyId: string) {
+  const db = await getDb();
+  const all = (await db.getAllFromIndex("lots", "by-survey", surveyId)) as Lot[];
+  return all.sort((a, b) => a.order - b.order);
+}
+
+export async function deleteLot(id: string) {
+  const db = await getDb();
+  await db.delete("lots", id);
 }

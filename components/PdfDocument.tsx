@@ -1,5 +1,5 @@
 import { Document, Page, Text, View, Image, StyleSheet } from "@react-pdf/renderer";
-import { CATEGORY_LABELS, CATEGORIES, Lang, Pathology, SEVERITY_LABELS, Survey } from "@/lib/types";
+import { Lang, Lot, Pathology, SEVERITY_LABELS, Survey } from "@/lib/types";
 import { computeSeverityCounts, overallPriorityLabel } from "@/lib/synthesis";
 
 const styles = StyleSheet.create({
@@ -54,12 +54,14 @@ export interface PdfPlanData {
 export default function PdfDocument({
   survey,
   pathologies,
+  lots,
   photosByPathology,
   plans,
   lang,
 }: {
   survey: Survey;
   pathologies: Pathology[];
+  lots: Lot[];
   photosByPathology: Record<string, string[]>;
   plans: PdfPlanData[];
   lang: Lang;
@@ -124,12 +126,12 @@ export default function PdfDocument({
           ))}
         </View>
 
-        {CATEGORIES.map((category) => {
-          const items = pathologies.filter((p) => p.category === category);
+        {lots.map((lot) => {
+          const items = pathologies.filter((p) => p.lotId === lot.id);
           if (items.length === 0) return null;
           return (
-            <View key={category}>
-              <Text style={styles.categoryTitle}>{CATEGORY_LABELS[category][lang]}</Text>
+            <View key={lot.id}>
+              <Text style={styles.categoryTitle}>{lot.name}</Text>
               {items.map((pathology) => {
                 const photos = photosByPathology[pathology.id] ?? [];
                 return (

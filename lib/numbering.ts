@@ -1,6 +1,6 @@
-import { CATEGORY_PREFIX, Category, Pathology } from "./types";
+import { Lot, Pathology } from "./types";
 
-export function nextCode(category: Category, existing: Pathology[]) {
-  const countInCategory = existing.filter((p) => p.category === category).length;
-  return `${CATEGORY_PREFIX[category]}-${String(countInCategory + 1).padStart(2, "0")}`;
+export function nextCode(lot: Lot, existing: Pathology[]) {
+  const countInLot = existing.filter((p) => p.lotId === lot.id).length;
+  return `${lot.prefix}-${String(countInLot + 1).padStart(2, "0")}`;
 }

@@ -20,12 +20,12 @@ export default function StorageWarning() {
   if (available) return null;
 
   return (
-    <div className="border-b border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+    <div className="border-b border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-300">
       <div className="mx-auto flex max-w-3xl items-start gap-2">
         <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={1.5} />
         <div>
           <p className="font-medium">{t("storageUnavailable", lang)}</p>
-          <p className="mt-0.5 text-xs text-amber-800">{t("storageUnavailableHint", lang)}</p>
+          <p className="mt-0.5 text-xs text-amber-800 dark:text-amber-400">{t("storageUnavailableHint", lang)}</p>
         </div>
       </div>
     </div>

@@ -5,13 +5,14 @@ import Link from "next/link";
 import { ArrowLeft, Download } from "lucide-react";
 import { usePDF } from "@react-pdf/renderer";
 import {
+  getLotsForSurvey,
   getMarkersForPlan,
   getPathologiesForSurvey,
   getPhotosForSurvey,
   getPlansForSurvey,
   getSurvey,
 } from "@/lib/db";
-import { Pathology, Survey } from "@/lib/types";
+import { Lot, Pathology, Survey } from "@/lib/types";
 import { useLang } from "@/lib/lang-context";
 import { t } from "@/lib/i18n";
 import PdfDocument, { PdfPlanData } from "@/components/PdfDocument";
@@ -31,6 +32,7 @@ export default function ReportContent({ id }: { id: string }) {
   const [pathologies, setPathologies] = useState<Pathology[]>([]);
   const [photosByPathology, setPhotosByPathology] = useState<Record<string, string[]>>({});
   const [plans, setPlans] = useState<PdfPlanData[]>([]);
+  const [lots, setLots] = useState<Lot[]>([]);
   const [ready, setReady] = useState(false);
   const [instance, updateInstance] = usePDF();
 
@@ -38,10 +40,11 @@ export default function ReportContent({ id }: { id: string }) {
     (async () => {
       const s = await getSurvey(id);
       if (!s) return;
-      const [items, photos, planRecords] = await Promise.all([
+      const [items, photos, planRecords, lotRecords] = await Promise.all([
         getPathologiesForSurvey(id),
         getPhotosForSurvey(id),
         getPlansForSurvey(id),
+        getLotsForSurvey(id),
       ]);
 
       const photoGroups: Record<string, string[]> = {};
@@ -71,6 +74,7 @@ export default function ReportContent({ id }: { id: string }) {
       setPathologies(items);
       setPhotosByPathology(photoGroups);
       setPlans(planData);
+      setLots(lotRecords);
       setReady(true);
     })();
   }, [id]);
@@ -78,15 +82,25 @@ export default function ReportContent({ id }: { id: string }) {
   useEffect(() => {
     if (survey && ready) {
       updateInstance(
-        <PdfDocument survey={survey} pathologies={pathologies} photosByPathology={photosByPathology} plans={plans} lang={lang} />
+        <PdfDocument
+          survey={survey}
+          pathologies={pathologies}
+          lots={lots}
+          photosByPathology={photosByPathology}
+          plans={plans}
+          lang={lang}
+        />
       );
     }
-  }, [survey, pathologies, photosByPathology, plans, lang, ready, updateInstance]);
+  }, [survey, pathologies, lots, photosByPathology, plans, lang, ready, updateInstance]);
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
       <div className="flex items-center justify-between">
-        <Link href={survey ? `/survey/${survey.id}` : "/"} className="flex items-center gap-1.5 text-sm text-stone-500 hover:text-stone-900">
+        <Link
+          href={survey ? `/survey/${survey.id}` : "/"}
+          className="flex items-center gap-1.5 text-sm text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-50"
+        >
           <ArrowLeft className="h-4 w-4" strokeWidth={1.5} />
           {t("backToSurvey", lang)}
         </Link>
@@ -94,7 +108,7 @@ export default function ReportContent({ id }: { id: string }) {
           <a
             href={instance.url}
             download={`releve-${survey?.buildingName || "patrimoine"}.pdf`}
-            className="flex items-center gap-1.5 rounded-full bg-stone-900 px-4 py-2 text-sm font-medium text-white hover:bg-stone-800"
+            className="flex items-center gap-1.5 rounded-full bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-dark"
           >
             <Download className="h-4 w-4" strokeWidth={1.5} />
             {t("downloadReport", lang)}
@@ -102,9 +116,9 @@ export default function ReportContent({ id }: { id: string }) {
         )}
       </div>
 
-      <div className="mt-6 overflow-hidden rounded-xl border border-stone-200 bg-stone-100">
+      <div className="mt-6 overflow-hidden rounded-xl border border-stone-200 bg-stone-100 dark:border-stone-800 dark:bg-stone-900">
         {instance.loading || !instance.url ? (
-          <p className="py-24 text-center text-sm text-stone-400">…</p>
+          <p className="py-24 text-center text-sm text-stone-400 dark:text-stone-500">…</p>
         ) : (
           <iframe src={instance.url} className="h-[80vh] w-full" />
         )}

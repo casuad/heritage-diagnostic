@@ -7,15 +7,19 @@ import { Trash2, Map as MapIcon } from "lucide-react";
 import {
   deleteSurvey,
   deletePathology,
+  deleteLot,
+  getLotsForSurvey,
   getMarkersForSurvey,
   getPathologiesForSurvey,
   getSurvey,
   savePathology,
+  saveLot,
   saveSurvey,
 } from "@/lib/db";
 import { newId } from "@/lib/id";
+import { defaultLotsFor, makeLotPrefix } from "@/lib/lots";
 import { nextCode } from "@/lib/numbering";
-import { Pathology, Survey } from "@/lib/types";
+import { Lot, Pathology, Survey } from "@/lib/types";
 import { useLang } from "@/lib/lang-context";
 import { t } from "@/lib/i18n";
 import PathologyBoard, { AddPathologySpec } from "@/components/PathologyBoard";
@@ -28,21 +32,36 @@ export default function SurveyDetailPage() {
   const router = useRouter();
   const [survey, setSurvey] = useState<Survey | null>(null);
   const [pathologies, setPathologies] = useState<Pathology[]>([]);
+  const [lots, setLots] = useState<Lot[]>([]);
   const [locatedPathologyIds, setLocatedPathologyIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     getSurvey(params.id).then((s) => setSurvey(s ?? null));
     getPathologiesForSurvey(params.id).then(setPathologies);
     getMarkersForSurvey(params.id).then((markers) => setLocatedPathologyIds(new Set(markers.map((m) => m.pathologyId))));
+    getLotsForSurvey(params.id).then(async (existing) => {
+      if (existing.length > 0) {
+        setLots(existing);
+        return;
+      }
+      // Surveys created before lots existed as an entity have none yet —
+      // seed the defaults now instead of leaving the board empty.
+      const seeded = defaultLotsFor(params.id, lang);
+      await Promise.all(seeded.map(saveLot));
+      setLots(seeded);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.id]);
 
   async function handleAdd(spec: AddPathologySpec) {
     if (!survey) return;
+    const lot = lots.find((l) => l.id === spec.lotId);
+    if (!lot) return;
     const pathology: Pathology = {
       id: newId(),
       surveyId: survey.id,
-      category: spec.category,
-      code: nextCode(spec.category, pathologies),
+      lotId: spec.lotId,
+      code: nextCode(lot, pathologies),
       label: spec.label ?? "",
       zone: spec.zone ?? "",
       disorderType: spec.disorderType ?? "",
@@ -58,8 +77,9 @@ export default function SurveyDetailPage() {
     const current = pathologies.find((p) => p.id === id);
     if (!current) return;
     let updated = { ...current, ...patch };
-    if (patch.category && patch.category !== current.category) {
-      updated = { ...updated, code: nextCode(patch.category, pathologies.filter((p) => p.id !== id)) };
+    if (patch.lotId && patch.lotId !== current.lotId) {
+      const lot = lots.find((l) => l.id === patch.lotId);
+      if (lot) updated = { ...updated, code: nextCode(lot, pathologies.filter((p) => p.id !== id)) };
     }
     setPathologies((prev) => prev.map((p) => (p.id === id ? updated : p)));
     await savePathology(updated);
@@ -68,6 +88,32 @@ export default function SurveyDetailPage() {
   async function handleDelete(id: string) {
     setPathologies((prev) => prev.filter((p) => p.id !== id));
     await deletePathology(id);
+  }
+
+  async function handleAddLot(name: string) {
+    if (!survey) return;
+    const lot: Lot = {
+      id: newId(),
+      surveyId: survey.id,
+      name,
+      prefix: makeLotPrefix(name, lots.map((l) => l.prefix)),
+      order: lots.length,
+    };
+    setLots((prev) => [...prev, lot]);
+    await saveLot(lot);
+  }
+
+  async function handleRenameLot(id: string, name: string) {
+    const lot = lots.find((l) => l.id === id);
+    if (!lot) return;
+    const updated = { ...lot, name };
+    setLots((prev) => prev.map((l) => (l.id === id ? updated : l)));
+    await saveLot(updated);
+  }
+
+  async function handleDeleteLot(id: string) {
+    setLots((prev) => prev.filter((l) => l.id !== id));
+    await deleteLot(id);
   }
 
   async function handleSurveyFieldChange(patch: Partial<Survey>) {
@@ -79,6 +125,7 @@ export default function SurveyDetailPage() {
 
   async function handleDeleteSurvey() {
     if (!survey) return;
+    if (!window.confirm(t("confirmDeleteSurvey", lang))) return;
     await deleteSurvey(survey.id);
     router.push("/");
   }
@@ -89,24 +136,24 @@ export default function SurveyDetailPage() {
     <div className="mx-auto max-w-3xl px-4 py-8">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h1 className="text-lg font-semibold text-stone-900">{survey.buildingName || "—"}</h1>
-          <p className="text-sm text-stone-500">
+          <h1 className="text-lg font-semibold text-stone-900 dark:text-stone-50">{survey.buildingName || "—"}</h1>
+          <p className="text-sm text-stone-500 dark:text-stone-400">
             {survey.address} {survey.address && "·"} {survey.date}
           </p>
-          {survey.surveyor && <p className="text-xs text-stone-400">{survey.surveyor}</p>}
+          {survey.surveyor && <p className="text-xs text-stone-400 dark:text-stone-500">{survey.surveyor}</p>}
         </div>
         <div className="flex shrink-0 items-center gap-1">
           <Link
             href={`/survey/${survey.id}/plans`}
             title={t("plans", lang)}
-            className="rounded-full p-2 text-stone-400 hover:bg-stone-100 hover:text-stone-900"
+            className="rounded-full p-2 text-stone-400 hover:bg-stone-100 hover:text-stone-900 dark:text-stone-500 dark:hover:bg-stone-800 dark:hover:text-stone-50"
           >
             <MapIcon className="h-4 w-4" strokeWidth={1.5} />
           </Link>
           <button
             onClick={handleDeleteSurvey}
             title={t("delete", lang)}
-            className="rounded-full p-2 text-stone-400 hover:bg-red-50 hover:text-red-600"
+            className="rounded-full p-2 text-stone-400 hover:bg-red-50 hover:text-red-600 dark:text-stone-500"
           >
             <Trash2 className="h-4 w-4" strokeWidth={1.5} />
           </button>
@@ -114,32 +161,36 @@ export default function SurveyDetailPage() {
       </div>
 
       <div className="mt-6 space-y-4">
-        <section className="rounded-xl border border-stone-200 bg-white p-4">
-          <label className="mb-1 block text-sm font-medium text-stone-700">{t("notes", lang)}</label>
+        <section className="rounded-xl border border-stone-200 bg-white p-4 dark:border-stone-800 dark:bg-stone-900/60">
+          <label className="mb-1 block text-sm font-medium text-stone-700 dark:text-stone-300">{t("notes", lang)}</label>
           <textarea
             value={survey.notes}
             onChange={(e) => handleSurveyFieldChange({ notes: e.target.value })}
             placeholder={t("notesPlaceholder", lang)}
             rows={2}
-            className="w-full resize-none rounded-lg border border-stone-200 px-2 py-1.5 text-sm focus:border-stone-900 focus:outline-none"
+            className="w-full resize-none rounded-lg border border-stone-200 px-2 py-1.5 text-sm focus:border-accent focus:outline-none dark:border-stone-700 dark:bg-stone-900 dark:text-stone-50"
           />
-          <label className="mb-1 mt-3 block text-sm font-medium text-stone-700">{t("diagnosticContext", lang)}</label>
+          <label className="mb-1 mt-3 block text-sm font-medium text-stone-700 dark:text-stone-300">{t("diagnosticContext", lang)}</label>
           <textarea
             value={survey.diagnosticContext}
             onChange={(e) => handleSurveyFieldChange({ diagnosticContext: e.target.value })}
             placeholder={t("diagnosticContextPlaceholder", lang)}
             rows={2}
-            className="w-full resize-none rounded-lg border border-stone-200 px-2 py-1.5 text-sm focus:border-stone-900 focus:outline-none"
+            className="w-full resize-none rounded-lg border border-stone-200 px-2 py-1.5 text-sm focus:border-accent focus:outline-none dark:border-stone-700 dark:bg-stone-900 dark:text-stone-50"
           />
         </section>
 
         <PathologyBoard
           surveyId={survey.id}
           pathologies={pathologies}
+          lots={lots}
           locatedPathologyIds={locatedPathologyIds}
           onAdd={handleAdd}
           onUpdate={handleUpdate}
           onDelete={handleDelete}
+          onAddLot={handleAddLot}
+          onRenameLot={handleRenameLot}
+          onDeleteLot={handleDeleteLot}
         />
 
         <DocumentsSection surveyId={survey.id} />

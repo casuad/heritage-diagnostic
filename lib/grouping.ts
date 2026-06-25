@@ -1,21 +1,21 @@
-import { CATEGORIES, CATEGORY_LABELS, Category, GroupMode, Lang, Pathology } from "./types";
+import { GroupMode, Lot, Pathology } from "./types";
 
 export const EMPTY_GROUP_KEY = "__empty__";
 
 export interface PathologyGroup {
   key: string;
   label: string;
-  category?: Category;
+  lot?: Lot;
   items: Pathology[];
 }
 
-export function groupPathologies(pathologies: Pathology[], mode: GroupMode, lang: Lang): PathologyGroup[] {
+export function groupPathologies(pathologies: Pathology[], mode: GroupMode, lots: Lot[]): PathologyGroup[] {
   if (mode === "lot") {
-    return CATEGORIES.map((category) => ({
-      key: category,
-      label: CATEGORY_LABELS[category][lang],
-      category,
-      items: pathologies.filter((p) => p.category === category),
+    return lots.map((lot) => ({
+      key: lot.id,
+      label: lot.name,
+      lot,
+      items: pathologies.filter((p) => p.lotId === lot.id),
     }));
   }
 

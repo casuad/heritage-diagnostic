@@ -55,7 +55,7 @@ export default function PhotoCapture({ surveyId, pathologyId }: { surveyId: stri
   return (
     <div className="mt-2 flex flex-wrap items-center gap-2">
       {photos.map((photo) => (
-        <div key={photo.id} className="group relative h-16 w-16 overflow-hidden rounded-lg border border-stone-200">
+        <div key={photo.id} className="group relative h-16 w-16 overflow-hidden rounded-lg border border-stone-200 dark:border-stone-700">
           {/* eslint-disable-next-line @next/next/no-img-element -- in-memory blob URL, not a static asset next/image can optimize */}
           <img src={URL.createObjectURL(photo.blob)} alt="" className="h-full w-full object-cover" />
           <button
@@ -67,7 +67,7 @@ export default function PhotoCapture({ surveyId, pathologyId }: { surveyId: stri
           </button>
         </div>
       ))}
-      <label className="flex h-16 w-16 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-stone-300 text-stone-400 hover:border-stone-400 hover:text-stone-600">
+      <label className="flex h-16 w-16 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-stone-300 text-stone-400 hover:border-accent hover:text-accent dark:border-stone-700 dark:text-stone-500">
         <Camera className="h-4 w-4" strokeWidth={1.5} />
         <span className="text-[9px]">{locating ? t("locating", lang) : t("addPhoto", lang)}</span>
         <input

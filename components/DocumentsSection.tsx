@@ -37,27 +37,31 @@ export default function DocumentsSection({ surveyId }: { surveyId: string }) {
   }
 
   return (
-    <section className="rounded-xl border border-stone-200 bg-white p-4">
-      <h2 className="text-sm font-semibold text-stone-900">{t("documents", lang)}</h2>
+    <section className="rounded-xl border border-dashed border-stone-300 bg-stone-50/60 p-4 dark:border-stone-700 dark:bg-stone-900/30">
+      <h2 className="text-sm font-semibold text-stone-900 dark:text-stone-50">{t("documents", lang)}</h2>
+      <p className="mt-1 text-xs text-stone-500 dark:text-stone-400">{t("documentsHint", lang)}</p>
 
       {documents.length === 0 ? (
-        <p className="mt-2 text-xs text-stone-400">{t("noDocuments", lang)}</p>
+        <p className="mt-3 text-xs text-stone-400 dark:text-stone-500">{t("noDocuments", lang)}</p>
       ) : (
-        <ul className="mt-2 space-y-1.5">
+        <ul className="mt-3 space-y-1.5">
           {documents.map((doc) => (
-            <li key={doc.id} className="flex items-center gap-2 rounded-lg border border-stone-100 px-2.5 py-1.5 text-sm">
-              <FileText className="h-3.5 w-3.5 shrink-0 text-stone-400" strokeWidth={1.5} />
+            <li
+              key={doc.id}
+              className="flex items-center gap-2 rounded-lg border border-stone-200 bg-white px-2.5 py-1.5 text-sm dark:border-stone-700 dark:bg-stone-900"
+            >
+              <FileText className="h-3.5 w-3.5 shrink-0 text-stone-400 dark:text-stone-500" strokeWidth={1.5} />
               <a
                 href={URL.createObjectURL(doc.blob)}
                 download={doc.name}
-                className="flex-1 truncate text-stone-700 hover:underline"
+                className="flex-1 truncate text-stone-700 hover:underline dark:text-stone-200"
               >
                 {doc.name}
               </a>
               <button
                 type="button"
                 onClick={() => handleDelete(doc.id)}
-                className="shrink-0 rounded-full p-1 text-stone-400 hover:bg-red-50 hover:text-red-600"
+                className="shrink-0 rounded-full p-1 text-stone-400 hover:bg-red-50 hover:text-red-600 dark:text-stone-500"
               >
                 <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} />
               </button>
@@ -66,7 +70,7 @@ export default function DocumentsSection({ surveyId }: { surveyId: string }) {
         </ul>
       )}
 
-      <label className="mt-3 flex cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-dashed border-stone-300 py-2 text-xs font-medium text-stone-500 hover:border-stone-400 hover:text-stone-900">
+      <label className="mt-3 flex cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-dashed border-stone-300 py-2 text-xs font-medium text-stone-500 hover:border-accent hover:text-accent dark:border-stone-600 dark:text-stone-400">
         <Upload className="h-3.5 w-3.5" strokeWidth={1.5} />
         {t("uploadDocument", lang)}
         <input type="file" className="hidden" onChange={handleUpload} />

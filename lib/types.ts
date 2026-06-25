@@ -7,37 +7,23 @@ export const SEVERITY_LABELS: Record<Severity, { fr: string; en: string; color: 
   3: { fr: "Urgent", en: "Urgent", color: "#d6432f" },
 };
 
-export type Category =
-  | "structure"
-  | "maconnerie"
-  | "couverture"
-  | "humidite"
-  | "menuiserie";
-
-export const CATEGORY_LABELS: Record<Category, { fr: string; en: string }> = {
-  structure: { fr: "Structure & charpente", en: "Structure & framing" },
-  maconnerie: { fr: "Maçonnerie", en: "Masonry" },
-  couverture: { fr: "Couverture", en: "Roofing" },
-  humidite: { fr: "Humidité", en: "Moisture" },
-  menuiserie: { fr: "Menuiserie & ferronnerie", en: "Joinery & ironwork" },
-};
-
-export const CATEGORY_PREFIX: Record<Category, string> = {
-  structure: "STR",
-  maconnerie: "MAC",
-  couverture: "COU",
-  humidite: "HUM",
-  menuiserie: "MEN",
-};
-
-export const CATEGORIES: Category[] = ["structure", "maconnerie", "couverture", "humidite", "menuiserie"];
+export interface Lot {
+  id: string;
+  surveyId: string;
+  name: string;
+  prefix: string;
+  order: number;
+  // Links a lot back to one of the seeded default trades, for suggestion
+  // lookups (see lib/pathology-suggestions.ts). Absent on user-created lots.
+  templateSlug?: string;
+}
 
 export type GroupMode = "lot" | "zone" | "disorderType";
 
 export interface Pathology {
   id: string;
   surveyId: string;
-  category: Category;
+  lotId: string;
   code: string;
   label: string;
   zone: string;

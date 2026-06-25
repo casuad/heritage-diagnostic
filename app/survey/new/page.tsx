@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { saveSurvey } from "@/lib/db";
+import { saveLot, saveSurvey } from "@/lib/db";
 import { newId } from "@/lib/id";
+import { defaultLotsFor } from "@/lib/lots";
 import { GeoPoint, Survey } from "@/lib/types";
 import { useLang } from "@/lib/lang-context";
 import { t } from "@/lib/i18n";
@@ -42,6 +43,7 @@ export default function NewSurveyPage() {
     };
     try {
       await saveSurvey(survey);
+      await Promise.all(defaultLotsFor(survey.id, lang).map(saveLot));
       router.push(`/survey/${survey.id}`);
     } catch {
       setError(t("saveError", lang));
@@ -50,7 +52,7 @@ export default function NewSurveyPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
-      <h1 className="text-lg font-semibold">{t("newSurvey", lang)}</h1>
+      <h1 className="text-lg font-semibold text-stone-900 dark:text-stone-50">{t("newSurvey", lang)}</h1>
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">
         <Field label={t("buildingName", lang)} value={buildingName} onChange={setBuildingName} required />
 
@@ -64,7 +66,7 @@ export default function NewSurveyPage() {
         />
         {geo && (
           <div>
-            <p className="mb-1 text-xs text-stone-500">{t("verifyBuilding", lang)}</p>
+            <p className="mb-1 text-xs text-stone-500 dark:text-stone-400">{t("verifyBuilding", lang)}</p>
             <MapPreview geo={geo} label={buildingName || address} />
           </div>
         )}
@@ -77,12 +79,12 @@ export default function NewSurveyPage() {
         />
         <Field label={t("surveyor", lang)} value={surveyor} onChange={setSurveyor} />
         <div>
-          <label className="mb-1 block text-sm font-medium text-stone-700">{t("date", lang)}</label>
+          <label className="mb-1 block text-sm font-medium text-stone-700 dark:text-stone-300">{t("date", lang)}</label>
           <input
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
-            className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-stone-900 focus:outline-none"
+            className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-accent focus:outline-none dark:border-stone-700 dark:bg-stone-900 dark:text-stone-50"
           />
         </div>
 
@@ -103,7 +105,7 @@ export default function NewSurveyPage() {
 
         <button
           type="submit"
-          className="w-full rounded-xl bg-stone-900 px-4 py-3 font-medium text-white transition-colors hover:bg-stone-800"
+          className="w-full rounded-xl bg-accent px-4 py-3 font-medium text-white transition-colors hover:bg-accent-dark active:scale-[0.99]"
         >
           {t("create", lang)}
         </button>
@@ -127,14 +129,14 @@ function Field({
 }) {
   return (
     <div>
-      <label className="mb-1 block text-sm font-medium text-stone-700">{label}</label>
+      <label className="mb-1 block text-sm font-medium text-stone-700 dark:text-stone-300">{label}</label>
       <input
         type="text"
         value={value}
         required={required}
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-stone-900 focus:outline-none"
+        className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-accent focus:outline-none dark:border-stone-700 dark:bg-stone-900 dark:text-stone-50"
       />
     </div>
   );
@@ -153,13 +155,13 @@ function TextAreaField({
 }) {
   return (
     <div>
-      <label className="mb-1 block text-sm font-medium text-stone-700">{label}</label>
+      <label className="mb-1 block text-sm font-medium text-stone-700 dark:text-stone-300">{label}</label>
       <textarea
         value={value}
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
         rows={3}
-        className="w-full resize-none rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-stone-900 focus:outline-none"
+        className="w-full resize-none rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-accent focus:outline-none dark:border-stone-700 dark:bg-stone-900 dark:text-stone-50"
       />
     </div>
   );

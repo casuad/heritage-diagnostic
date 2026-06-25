@@ -45,5 +45,10 @@ export default function MapPreview({ geo, label }: { geo: GeoPoint; label?: stri
     markerRef.current?.setPopupContent(label ?? "");
   }, [label]);
 
-  return <div ref={containerRef} className="h-48 w-full overflow-hidden rounded-lg border border-stone-200" />;
+  return (
+    <div
+      ref={containerRef}
+      className="h-48 w-full overflow-hidden rounded-lg border border-stone-200 dark:border-stone-700 dark:[&_.leaflet-tile-pane]:brightness-[0.6] dark:[&_.leaflet-tile-pane]:contrast-[0.9] dark:[&_.leaflet-tile-pane]:hue-rotate-180 dark:[&_.leaflet-tile-pane]:invert"
+    />
+  );
 }

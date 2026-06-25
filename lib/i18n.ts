@@ -1,7 +1,7 @@
 import { Lang } from "./types";
 
 export const STRINGS = {
-  appName: { fr: "Relevé Patrimoine", en: "Heritage Survey" },
+  appName: { fr: "Relevo", en: "Relevo" },
   tagline: {
     fr: "Diagnostic terrain pour le bâti ancien",
     en: "Field diagnostics for historic buildings",
@@ -62,6 +62,10 @@ export const STRINGS = {
     en: "Reported issues, reason for the request, history…",
   },
   documents: { fr: "Documents", en: "Documents" },
+  documentsHint: {
+    fr: "Pièces jointes au relevé (devis, photos d'ensemble, courriers…). Pour annoter un plan et y localiser des pathologies, utilisez la section « Plans » ci-dessus.",
+    en: "Attachments to the survey (quotes, overview photos, letters…). To annotate a plan and locate pathologies on it, use the « Plans » section above.",
+  },
   uploadDocument: { fr: "Ajouter un document", en: "Upload a document" },
   noDocuments: { fr: "Aucun document pour l'instant.", en: "No documents yet." },
   groupByLot: { fr: "Par lot", en: "By trade" },
@@ -71,10 +75,20 @@ export const STRINGS = {
   zonePlaceholder: { fr: "ex : façade nord, RDC…", en: "e.g. north facade, ground floor…" },
   disorderType: { fr: "Type de désordre", en: "Disorder type" },
   disorderTypePlaceholder: { fr: "ex : fissure, humidité…", en: "e.g. crack, dampness…" },
-  lot: { fr: "Lot", en: "Trade" },
   unzoned: { fr: "Zone non précisée", en: "Unspecified zone" },
   untyped: { fr: "Type non précisé", en: "Unspecified type" },
-  newGroup: { fr: "Nouveau groupe", en: "New group" },
+  newLot: { fr: "Nouveau lot", en: "New trade section" },
+  lotNamePlaceholder: { fr: "ex : Étanchéité, VRD…", en: "e.g. Waterproofing, Sitework…" },
+  newZone: { fr: "Nouvelle zone", en: "New zone" },
+  newDisorderType: { fr: "Nouveau type de désordre", en: "New disorder type" },
+  deleteLotBlocked: {
+    fr: "Videz ce lot avant de le supprimer",
+    en: "Empty this trade section before deleting it",
+  },
+  noLotsYet: {
+    fr: "Aucun lot défini. Créez-en un dans l'onglet « Par lot ».",
+    en: "No trade sections defined. Create one in the « By trade » tab.",
+  },
   locatedOnPlan: { fr: "Repéré sur plan", en: "Located on plan" },
   storageUnavailable: {
     fr: "Stockage local indisponible dans ce navigateur",
@@ -87,6 +101,13 @@ export const STRINGS = {
   saveError: {
     fr: "Impossible d'enregistrer — vérifiez les paramètres de confidentialité de votre navigateur.",
     en: "Could not save — check your browser's privacy settings.",
+  },
+  renamePlan: { fr: "Renommer le plan", en: "Rename plan" },
+  switchToDark: { fr: "Passer en mode sombre", en: "Switch to dark mode" },
+  switchToLight: { fr: "Passer en mode clair", en: "Switch to light mode" },
+  confirmDeleteSurvey: {
+    fr: "Supprimer ce relevé ? Cette action est irréversible.",
+    en: "Delete this survey? This action cannot be undone.",
   },
 } as const;
 

@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Upload } from "lucide-react";
+import { ArrowLeft, Trash2, Upload } from "lucide-react";
 import {
   addMarker,
   addPlan,
@@ -72,6 +72,15 @@ export default function PlansPage() {
     setPlanName("");
   }
 
+  async function handleRenamePlan(rawName: string) {
+    if (!activePlan) return;
+    const name = rawName.trim();
+    if (!name || name === activePlan.name) return;
+    const updated = { ...activePlan, name };
+    await addPlan(updated);
+    setPlans((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+  }
+
   async function handleDeletePlan(id: string) {
     await deletePlan(id);
     const remaining = plans.filter((p) => p.id !== id);
@@ -104,12 +113,15 @@ export default function PlansPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
-      <Link href={`/survey/${surveyId}`} className="flex items-center gap-1.5 text-sm text-stone-500 hover:text-stone-900">
+      <Link
+        href={`/survey/${surveyId}`}
+        className="flex items-center gap-1.5 text-sm text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-50"
+      >
         <ArrowLeft className="h-4 w-4" strokeWidth={1.5} />
         {t("backToSurvey", lang)}
       </Link>
 
-      <h1 className="mt-4 text-lg font-semibold text-stone-900">{t("plans", lang)}</h1>
+      <h1 className="mt-4 text-lg font-semibold text-stone-900 dark:text-stone-50">{t("plans", lang)}</h1>
 
       <div className="mt-4 flex flex-wrap items-center gap-2">
         {plans.map((plan) => (
@@ -117,7 +129,9 @@ export default function PlansPage() {
             key={plan.id}
             onClick={() => setActivePlanId(plan.id)}
             className={`rounded-full px-3 py-1.5 text-xs font-medium ${
-              activePlanId === plan.id ? "bg-stone-900 text-white" : "bg-stone-100 text-stone-600 hover:bg-stone-200"
+              activePlanId === plan.id
+                ? "bg-accent text-white"
+                : "bg-stone-100 text-stone-600 hover:bg-stone-200 dark:bg-stone-800 dark:text-stone-300 dark:hover:bg-stone-700"
             }`}
           >
             {plan.name}
@@ -128,28 +142,49 @@ export default function PlansPage() {
           value={planName}
           onChange={(e) => setPlanName(e.target.value)}
           placeholder={t("planName", lang)}
-          className="w-32 rounded-full border border-stone-200 px-3 py-1.5 text-xs focus:border-stone-900 focus:outline-none"
+          className="w-32 rounded-full border border-stone-200 px-3 py-1.5 text-xs focus:border-accent focus:outline-none dark:border-stone-700 dark:bg-stone-900 dark:text-stone-50"
         />
-        <label className="flex cursor-pointer items-center gap-1.5 rounded-full border border-dashed border-stone-300 px-3 py-1.5 text-xs font-medium text-stone-500 hover:border-stone-400 hover:text-stone-900">
+        <label className="flex cursor-pointer items-center gap-1.5 rounded-full border border-dashed border-stone-300 px-3 py-1.5 text-xs font-medium text-stone-500 hover:border-accent hover:text-accent dark:border-stone-700 dark:text-stone-400">
           <Upload className="h-3.5 w-3.5" strokeWidth={1.5} />
           {t("uploadPlan", lang)}
           <input type="file" accept="image/*" className="hidden" onChange={handleUpload} />
         </label>
       </div>
 
-      {plans.length === 0 && <p className="mt-8 text-center text-sm text-stone-400">{t("noPlans", lang)}</p>}
+      {plans.length === 0 && <p className="mt-8 text-center text-sm text-stone-400 dark:text-stone-500">{t("noPlans", lang)}</p>}
 
       {activePlan && activeImageUrl && (
         <div className="mt-4">
+          <div className="mb-3 flex items-center gap-2">
+            <input
+              key={activePlan.id}
+              type="text"
+              defaultValue={activePlan.name}
+              onBlur={(e) => handleRenamePlan(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleRenamePlan(e.currentTarget.value)}
+              title={t("renamePlan", lang)}
+              className="flex-1 rounded-lg border border-stone-200 bg-transparent px-2 py-1.5 text-sm font-medium text-stone-900 focus:border-accent focus:outline-none dark:border-stone-700 dark:text-stone-50"
+            />
+            <button
+              onClick={() => handleDeletePlan(activePlan.id)}
+              title={t("delete", lang)}
+              className="shrink-0 rounded-full p-2 text-stone-400 hover:bg-red-50 hover:text-red-600 dark:text-stone-500"
+            >
+              <Trash2 className="h-4 w-4" strokeWidth={1.5} />
+            </button>
+          </div>
+
           {pathologies.length === 0 ? (
-            <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-700">{t("noPathologiesYet", lang)}</p>
+            <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-700 dark:bg-amber-950/40 dark:text-amber-400">
+              {t("noPathologiesYet", lang)}
+            </p>
           ) : (
             <>
-              <p className="mb-2 text-xs text-stone-500">{t("placeMarkerHint", lang)}</p>
+              <p className="mb-2 text-xs text-stone-500 dark:text-stone-400">{t("placeMarkerHint", lang)}</p>
               <select
                 value={selectedPathologyId}
                 onChange={(e) => setSelectedPathologyId(e.target.value)}
-                className="mb-3 w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-stone-900 focus:outline-none"
+                className="mb-3 w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-accent focus:outline-none dark:border-stone-700 dark:bg-stone-900 dark:text-stone-50"
               >
                 {pathologies.map((p) => (
                   <option key={p.id} value={p.id}>
@@ -166,12 +201,6 @@ export default function PlansPage() {
             onDeleteMarker={handleDeleteMarker}
             placementEnabled={pathologies.length > 0}
           />
-          <button
-            onClick={() => handleDeletePlan(activePlan.id)}
-            className="mt-3 text-xs text-stone-400 hover:text-red-600"
-          >
-            {t("delete", lang)} « {activePlan.name} »
-          </button>
         </div>
       )}
     </div>
