@@ -1,36 +1,46 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Relevé Patrimoine — Heritage Survey
 
-## Getting Started
+Outil de terrain pour le diagnostic du bâti ancien : organisation par lots, pathologies ajoutées manuellement avec photo et niveau d'urgence, localisation sur plan, et rapport PDF bilingue (FR/EN) généré dans le navigateur.
 
-First, run the development server:
+Pensé pour le diagnostiqueur indépendant ou l'artisan du patrimoine — pas pour le BIM d'entreprise. Fonctionne hors-ligne, sans compte, sans serveur : toutes les données restent sur l'appareil (IndexedDB).
+
+## Pourquoi
+
+Les outils existants (ArchiSnapper, PocketSurvey, GoAudits…) couvrent le snagging et l'état des lieux générique, mais aucun n'est structuré autour des pathologies du bâti ancien (charpente, maçonnerie traditionnelle, couverture, humidité) ni de la logique de priorité de conservation. Ce projet comble ce trou pour un usage léger et personnel.
+
+## Fonctionnalités
+
+- Organisation par grand lot (structure/charpente, maçonnerie, couverture, humidité, menuiserie/ferronnerie) — le diagnostiqueur ajoute librement les pathologies constatées dans chaque lot (suggestions rapides disponibles, texte libre toujours possible)
+- Numérotation intelligente automatique par lot (ex. `STR-01`, `MAC-02`) — repère unique réutilisé sur les plans et dans le rapport
+- Notation de gravité à 4 niveaux (bon état → urgent) et photo géolocalisée par pathologie
+- Adresse en saisie assistée (autocomplétion via la Base Adresse Nationale) avec carte de vérification du bâtiment (OpenStreetMap)
+- Plans téléversables (façade, niveau…) avec placement des pathologies au clic, repérées par leur code
+- Synthèse de priorité globale, calculée automatiquement
+- Rapport PDF (page de garde, synthèse, pathologies par lot, plans annotés), bilingue FR/EN, entièrement généré côté client
+- Export/import JSON pour sauvegarde, sans cloud
+- PWA installable, fonctionne hors connexion
+
+## Stack
+
+Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS v4 · IndexedDB (`idb`) · `@react-pdf/renderer` · Leaflet/OpenStreetMap · API Adresse (data.gouv.fr)
+
+Aucune clé API requise — la géolocalisation d'adresse et les fonds de carte utilisent des services publics gratuits et sans quota bloquant.
+
+## Démarrer
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Ouvrir [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Limites connues (v1)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Pas de multi-utilisateur ni de synchronisation cloud (choix volontaire — données 100% locales)
+- Plans en image uniquement (pas de PDF de plan, pas de mise à l'échelle/mesure)
+- Pas d'assistance IA à la rédaction (hors scope v1, envisageable en v2)
 
-## Learn More
+## Licence
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT — voir [LICENSE](./LICENSE).
