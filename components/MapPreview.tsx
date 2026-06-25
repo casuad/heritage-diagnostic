@@ -6,6 +6,7 @@ import { GeoPoint } from "@/lib/types";
 
 export default function MapPreview({ geo, label }: { geo: GeoPoint; label?: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const markerRef = useRef<import("leaflet").Marker | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -26,14 +27,23 @@ export default function MapPreview({ geo, label }: { geo: GeoPoint; label?: stri
         iconSize: [14, 14],
         iconAnchor: [7, 7],
       });
-      L.marker([geo.lat, geo.lng], { icon }).addTo(map).bindPopup(label ?? "").openPopup();
+      markerRef.current = L.marker([geo.lat, geo.lng], { icon }).addTo(map).bindPopup(label ?? "").openPopup();
     });
 
     return () => {
       cancelled = true;
+      markerRef.current = null;
       map?.remove();
     };
-  }, [geo.lat, geo.lng, label]);
+    // Re-init only when the coordinates actually change — not on every
+    // keystroke of `label` (e.g. typing the building name live-updates the
+    // popup text below, without tearing down and recreating the map).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [geo.lat, geo.lng]);
+
+  useEffect(() => {
+    markerRef.current?.setPopupContent(label ?? "");
+  }, [label]);
 
   return <div ref={containerRef} className="h-48 w-full overflow-hidden rounded-lg border border-stone-200" />;
 }
